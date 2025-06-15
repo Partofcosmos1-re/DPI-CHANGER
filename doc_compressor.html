@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Same header styles -->
+  <title>Document Compressor | Cosmos Tools</title>
+</head>
+<body>
+  <header>
+    <h1>Document Compressor</h1>
+    <p>Reduce file size of Word, Excel, and PowerPoint files</p>
+  </header>
+
+  <div class="container">
+    <div class="tool-card">
+      <h2>Compress Documents</h2>
+      
+      <div class="drop-zone">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">
+          <i class="fas fa-file-word"></i>
+          <i class="fas fa-file-excel"></i>
+          <i class="fas fa-file-powerpoint"></i>
+        </div>
+        <p>Drag & drop document here or click to browse</p>
+        <input type="file" accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx" style="display: none;">
+      </div>
+
+      <div class="file-info" style="margin: 1.5rem 0; display: none;" id="file-info">
+        <!-- File info would appear here -->
+      </div>
+
+      <button class="btn">Compress Document</button>
+    </div>
+  </div>
+
+  <div class="floating-ai" onclick="window.location.href='ai_assistant.html'">
+    <i class="fas fa-robot"></i>
+  </div>
+</body>
+</html>
