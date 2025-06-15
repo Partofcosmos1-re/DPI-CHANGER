@@ -211,18 +211,7 @@
   </div>
 
   <script>
-    // Secure default API key handling (obfuscated)
-    const getDefaultKey = () => {
-      const partial1 = 'AIzaSyB';
-      const partial2 = '0VNa';
-      const partial3 = '9Hj';
-      const partial4 = 'HBUVw';
-      const partial5 = 'c3yiy';
-      const partial6 = 'qnDg7oAE';
-      const partial7 = 'QAY';
-      const partial8 = 'l8';
-      return `${partial1}${partial2}${partial3}${partial4}${partial5}${partial6}${partial7}${partial8}`;
-    };
+   // no default key needed anymore
 
     // State management
     let currentApiKey = null;
@@ -260,23 +249,15 @@
 
     // Secure API call function
     async function callGeminiAPI(prompt) {
-      const apiKey = currentApiKey || getDefaultKey();
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
-      
+      const apiUrl = "https://gemini-backened.onrender.com/api/gemini";
       try {
         const response = await fetch(apiUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: prompt
-              }]
-            }]
-          })
-        });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ prompt: prompt })
+});
         
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
