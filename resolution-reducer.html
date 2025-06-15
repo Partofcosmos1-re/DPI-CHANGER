@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Resolution Reducer | Cosmos Tools</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Pica.js: For high-quality image resizing -->
+    <script src="https://cdn.jsdelivr.net/npm/pica@9.0.1/dist/pica.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        :root {
+            --primary-color: #6a62d5; --primary-hover: #5850b7; --secondary-color: #f5f5f5;
+            --text-color: #333; --bg-color: #ffffff; --shadow-color: rgba(0, 0, 0, 0.08);
+            --danger-color: #e53e3e; --border-color: #e2e8f0; --success-color: #28a745;
+        }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--secondary-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; }
+        main { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 2rem; }
+        .container { max-width: 1000px; width: 100%; }
+        .tool-card { background: var(--bg-color); padding: 2rem; border-radius: 16px; box-shadow: 0 8px 30px var(--shadow-color); }
+        .tool-header { text-align: center; margin-bottom: 2rem; }
+        .tool-header h1 { font-size: 2.5rem; color: var(--primary-color); margin: 0; }
+        .drop-zone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary-color); background: #f7f7ff; }
+        .processor-area { display: grid; grid-template-columns: 1fr 320px; gap: 2rem; }
+        @media (max-width: 900px) { .processor-area { grid-template-columns: 1fr; } }
+        .previews { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .preview-box { border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; text-align: center; }
+        .preview-box img { max-width: 100%; height: auto; border-radius: 4px; }
+        .preview-box h4 { margin: 0 0 0.5rem 0; }
+        .info { font-size: 0.85rem; }
+        .info .file-size { font-weight: 600; }
+        .info .reduction { font-weight: 600; color: var(--success-color); }
+        .controls h3 { margin-top: 0; text-align: center; color: var(--primary-color); }
+        .control-group { margin-bottom: 1.5rem; }
+        .control-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        input[type="range"] { width: 100%; }
+        .btn { display: flex; align-items: center; justify-content: center; gap: 0.75rem; width: 100%; background-color: var(--primary-color); color: white; padding: 1rem; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn:hover:not(:disabled) { background-color: var(--primary-hover); }
+        .btn:disabled { background-color: #a3a3d5; cursor: not-allowed; }
+        .download-button { background-color: var(--success-color); }
+        .download-button:hover { background-color: #218838; }
+        .home-btn { display: inline-block; margin-bottom: 1.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        .home-btn i { margin-right: 0.5rem; }
+        .hidden { display: none; }
+        .ad-container { width: 100%; max-width: 1000px; margin: 2rem auto; min-height: 90px; background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; color: #94a3b8; border: 1px solid var(--border-color); border-radius: 8px; }
+        footer { width: 100%; background: var(--bg-color); text-align: center; padding: 2rem; margin-top: auto; border-top: 1px solid var(--border-color); }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; justify-content: center; margin-bottom: 1rem; }
+        .footer-links a { color: var(--text-color); text-decoration: none; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--primary-color); }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <a href="home.html" class="home-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            <div class="tool-card">
+                <div id="upload-view">
+                    <div class="tool-header"><h1>Image Resolution & Size Reducer</h1></div>
+                    <div class="drop-zone" id="drop-zone">
+                        <i class="fas fa-file-image" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+                        <p><strong>Drag & drop an image here</strong> or click to browse</p>
+                        <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp" class="hidden">
+                    </div>
+                </div>
+
+                <div id="editor-view" class="hidden">
+                    <div class="processor-area">
+                        <div class="previews">
+                            <div class="preview-box">
+                                <h4>Before</h4>
+                                <img id="original-preview" src="" alt="Original Image">
+                                <div id="original-info" class="info"></div>
+                            </div>
+                            <div class="preview-box">
+                                <h4>After</h4>
+                                <img id="processed-preview" src="" alt="Processed Image">
+                                <div id="processed-info" class="info"></div>
+                            </div>
+                        </div>
+                        <div class="controls">
+                            <h3>Controls</h3>
+                            <div class="control-group">
+                                <label for="scale-slider">Scale: <span id="scale-value">50</span>%</label>
+                                <input type="range" id="scale-slider" min="1" max="100" value="50">
+                            </div>
+                            <div class="control-group">
+                                <label for="width-input">Target Width (px)</label>
+                                <input type="number" id="width-input" class="form-control">
+                            </div>
+                             <div class="control-group">
+                                <label for="quality-slider">JPEG Quality: <span id="quality-value">80</span></label>
+                                <input type="range" id="quality-slider" min="1" max="100" value="80">
+                            </div>
+                            <div class="control-group">
+                                <label for="dithering-check">
+                                    <input type="checkbox" id="dithering-check"> 1-Bit Dithering (B&W Effect)
+                                </label>
+                            </div>
+                            <button id="process-btn" class="btn"><i class="fas fa-cogs"></i> Reduce Image</button>
+                            <div id="download-section" class="control-group hidden" style="margin-top: 1rem;">
+                                <a href="#" id="download-btn" class="btn download-button" download><i class="fas fa-download"></i> Download Image</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <!-- Ad Placeholder -->
+            <div class="ad-container">Your Ad Content Here</div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms & Conditions</a>
+            <a href="mailto:partofcosmmos@gmail.com">Send Feedback</a>
+        </div>
+        <p>© 2024 Cosmos Tools. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const picaInstance = pica();
+        // DOM Elements
+        const uploadView = document.getElementById('upload-view');
+        const editorView = document.getElementById('editor-view');
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        // Previews
+        const originalPreview = document.getElementById('original-preview');
+        const processedPreview = document.getElementById('processed-preview');
+        const originalInfo = document.getElementById('original-info');
+        const processedInfo = document.getElementById('processed-info');
+        // Controls
+        const scaleSlider = document.getElementById('scale-slider');
+        const scaleValue = document.getElementById('scale-value');
+        const widthInput = document.getElementById('width-input');
+        const qualitySlider = document.getElementById('quality-slider');
+        const qualityValue = document.getElementById('quality-value');
+        const ditheringCheck = document.getElementById('dithering-check');
+        // Buttons & Links
+        const processBtn = document.getElementById('process-btn');
+        const downloadSection = document.getElementById('download-section');
+        const downloadBtn = document.getElementById('download-btn');
+        
+        let originalFile = null;
+        let originalAspectRatio = 1;
+
+        // Event Listeners
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); });
+        
+        scaleSlider.addEventListener('input', () => {
+            scaleValue.textContent = scaleSlider.value;
+            const newWidth = Math.round(originalPreview.naturalWidth * (scaleSlider.value / 100));
+            widthInput.value = newWidth;
+        });
+        
+        widthInput.addEventListener('input', () => {
+            if (originalPreview.naturalWidth > 0) {
+                const newScale = Math.round((widthInput.value / originalPreview.naturalWidth) * 100);
+                scaleSlider.value = Math.min(100, Math.max(1, newScale || 1));
+                scaleValue.textContent = scaleSlider.value;
+            }
+        });
+        
+        qualitySlider.addEventListener('input', () => { qualityValue.textContent = qualitySlider.value; });
+        processBtn.addEventListener('click', processImage);
+
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) return;
+            originalFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalPreview.src = e.target.result;
+                originalPreview.onload = () => {
+                    originalAspectRatio = originalPreview.naturalWidth / originalPreview.naturalHeight;
+                    originalInfo.innerHTML = `
+                        <p>${originalPreview.naturalWidth} x ${originalPreview.naturalHeight}</p>
+                        <p class="file-size">${formatBytes(originalFile.size)}</p>
+                    `;
+                    scaleSlider.value = 50;
+                    scaleValue.textContent = '50';
+                    widthInput.value = Math.round(originalPreview.naturalWidth * 0.5);
+                    processedPreview.src = '';
+                    processedInfo.innerHTML = '';
+                    downloadSection.classList.add('hidden');
+                    uploadView.classList.add('hidden');
+                    editorView.classList.remove('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function processImage() {
+            const toCanvas = document.createElement('canvas');
+            const targetWidth = parseInt(widthInput.value, 10);
+            const targetHeight = Math.round(targetWidth / originalAspectRatio);
+            toCanvas.width = targetWidth;
+            toCanvas.height = targetHeight;
+            
+            setLoading(true);
+
+            try {
+                await picaInstance.resize(originalPreview, toCanvas, { alpha: true });
+
+                if (ditheringCheck.checked) {
+                    applyDithering(toCanvas);
+                }
+
+                const quality = ditheringCheck.checked ? 1 : parseInt(qualitySlider.value, 10) / 100;
+                const mimeType = ditheringCheck.checked ? 'image/png' : 'image/jpeg';
+                
+                toCanvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    processedPreview.src = url;
+                    downloadBtn.href = url;
+                    downloadBtn.download = `reduced-${originalFile.name}`;
+                    
+                    const sizeReduction = 100 - (blob.size / originalFile.size) * 100;
+                    processedInfo.innerHTML = `
+                        <p>${targetWidth} x ${targetHeight}</p>
+                        <p class="file-size">${formatBytes(blob.size)}</p>
+                        <p class="reduction">Size reduced by ${sizeReduction.toFixed(1)}%</p>
+                    `;
+                    downloadSection.classList.remove('hidden');
+                    setLoading(false);
+                }, mimeType, quality);
+
+            } catch (error) {
+                console.error("Processing error:", error);
+                alert("An error occurred during processing.");
+                setLoading(false);
+            }
+        }
+        
+        function applyDithering(canvas) {
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const d = imageData.data;
+            const width = canvas.width;
+
+            // Grayscale
+            for (let i = 0; i < d.length; i += 4) {
+                const r = d[i];
+                const g = d[i+1];
+                const b = d[i+2];
+                const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                d[i] = d[i+1] = d[i+2] = gray;
+            }
+
+            // Floyd-Steinberg Dithering
+            for (let i = 0; i < d.length; i += 4) {
+                const oldPixel = d[i];
+                const newPixel = oldPixel < 128 ? 0 : 255;
+                d[i] = d[i+1] = d[i+2] = newPixel;
+                const quantError = oldPixel - newPixel;
+
+                // Propagate error
+                d[i + 4] += quantError * 7 / 16;
+                d[i + 4 * width - 4] += quantError * 3 / 16;
+                d[i + 4 * width] += quantError * 5 / 16;
+                d[i + 4 * width + 4] += quantError * 1 / 16;
+            }
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function setLoading(isLoading) {
+            processBtn.disabled = isLoading;
+            processBtn.innerHTML = isLoading ? '<div class="spinner-border spinner-border-sm" role="status"></div> Processing...' : '<i class="fas fa-cogs"></i> Reduce Image';
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
