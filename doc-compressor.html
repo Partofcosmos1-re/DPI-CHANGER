@@ -1,39 +1,426 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Same header styles -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Document Compressor | Cosmos Tools</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --gray: #94a3b8;
+      --gray-dark: #64748b;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    body {
+      background-color: #f1f5f9;
+      color: var(--dark);
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 2rem 1rem;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .tool-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      transition: var(--transition);
+    }
+    .tool-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2 {
+      margin-bottom: 1rem;
+    }
+    .drop-zone {
+      border: 2px dashed var(--gray);
+      border-radius: var(--radius);
+      padding: 3rem 2rem;
+      text-align: center;
+      margin: 1.5rem 0;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .drop-zone:hover {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+    }
+    .drop-zone.active {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+    .file-icons {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+      font-size: 3rem;
+    }
+    .file-icons i {
+      transition: var(--transition);
+    }
+    .file-icons i.fa-file-word { color: #2b579a; }
+    .file-icons i.fa-file-excel { color: #217346; }
+    .file-icons i.fa-file-powerpoint { color: #b7472a; }
+    .file-info {
+      background: #f8fafc;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      display: none;
+    }
+    .file-details {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .file-details:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .compression-options {
+      margin: 1.5rem 0;
+    }
+    .option-group {
+      margin-bottom: 1rem;
+    }
+    .option-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .option-group select, .option-group input[type="range"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius);
+    }
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    .btn:disabled {
+      background: var(--gray);
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn i {
+      margin-right: 0.5rem;
+    }
+    .progress-container {
+      display: none;
+      margin: 1.5rem 0;
+    }
+    .progress-bar {
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+    .progress {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .floating-ai {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      z-index: 100;
+      transition: var(--transition);
+    }
+    .floating-ai:hover {
+      transform: scale(1.1);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1rem;
+      }
+      .tool-card {
+        padding: 1.5rem;
+      }
+      .file-icons {
+        gap: 1rem;
+        font-size: 2.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>Document Compressor</h1>
-    <p>Reduce file size of Word, Excel, and PowerPoint files</p>
+    <p>Reduce file size of Word, Excel, and PowerPoint files without losing quality</p>
   </header>
 
   <div class="container">
     <div class="tool-card">
-      <h2>Compress Documents</h2>
+      <h2><i class="fas fa-file-archive"></i> Compress Documents</h2>
       
-      <div class="drop-zone">
-        <div style="font-size: 3rem; margin-bottom: 1rem;">
+      <div class="drop-zone" id="dropZone">
+        <div class="file-icons">
           <i class="fas fa-file-word"></i>
           <i class="fas fa-file-excel"></i>
           <i class="fas fa-file-powerpoint"></i>
         </div>
-        <p>Drag & drop document here or click to browse</p>
-        <input type="file" accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx" style="display: none;">
+        <p>Drag & drop your document here or <span style="color: var(--primary);">browse files</span></p>
+        <p class="small" style="font-size: 0.8rem; color: var(--gray-dark); margin-top: 0.5rem;">
+          Supports: DOC, DOCX, XLS, XLSX, PPT, PPTX
+        </p>
+        <input type="file" id="fileInput" accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx" style="display: none;">
       </div>
 
-      <div class="file-info" style="margin: 1.5rem 0; display: none;" id="file-info">
-        <!-- File info would appear here -->
+      <div class="file-info" id="fileInfo">
+        <div class="file-details">
+          <span>File Name:</span>
+          <span id="fileName" style="font-weight: 600;">-</span>
+        </div>
+        <div class="file-details">
+          <span>Original Size:</span>
+          <span id="fileSize">-</span>
+        </div>
+        <div class="file-details">
+          <span>Type:</span>
+          <span id="fileType">-</span>
+        </div>
       </div>
 
-      <button class="btn">Compress Document</button>
+      <div class="compression-options">
+        <div class="option-group">
+          <label for="compressionLevel">Compression Level:</label>
+          <select id="compressionLevel" class="tool-card">
+            <option value="low">Low (Better Quality)</option>
+            <option value="medium" selected>Medium (Recommended)</option>
+            <option value="high">High (Maximum Compression)</option>
+          </select>
+        </div>
+        <div class="option-group">
+          <label for="qualityLevel">Quality: <span id="qualityValue">80%</span></label>
+          <input type="range" id="qualityLevel" min="50" max="100" value="80" class="tool-card">
+        </div>
+      </div>
+
+      <div class="progress-container" id="progressContainer">
+        <p>Compressing... <span id="progressPercent">0%</span></p>
+        <div class="progress-bar">
+          <div class="progress" id="progressBar"></div>
+        </div>
+      </div>
+
+      <button class="btn" id="compressBtn" disabled>
+        <i class="fas fa-compress-alt"></i> Compress Document
+      </button>
     </div>
   </div>
 
   <div class="floating-ai" onclick="window.location.href='ai_assistant.html'">
     <i class="fas fa-robot"></i>
   </div>
+
+  <script>
+    // DOM Elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const fileType = document.getElementById('fileType');
+    const compressBtn = document.getElementById('compressBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+    const qualityLevel = document.getElementById('qualityLevel');
+    const qualityValue = document.getElementById('qualityValue');
+
+    // Update quality value display
+    qualityLevel.addEventListener('input', () => {
+      qualityValue.textContent = `${qualityLevel.value}%`;
+    });
+
+    // File drag and drop handling
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight() {
+      dropZone.classList.add('active');
+    }
+
+    function unhighlight() {
+      dropZone.classList.remove('active');
+    }
+
+    dropZone.addEventListener('drop', handleDrop, false);
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length) {
+        handleFiles(files);
+      }
+    }
+
+    fileInput.addEventListener('change', function() {
+      if (this.files.length) {
+        handleFiles(this.files);
+      }
+    });
+
+    // File handling
+    function handleFiles(files) {
+      const file = files[0];
+      if (isValidFileType(file)) {
+        displayFileInfo(file);
+        compressBtn.disabled = false;
+      } else {
+        alert('Please select a valid document file (DOC, DOCX, XLS, XLSX, PPT, PPTX)');
+      }
+    }
+
+    function isValidFileType(file) {
+      const validTypes = [
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+      ];
+      return validTypes.includes(file.type);
+    }
+
+    function displayFileInfo(file) {
+      fileName.textContent = file.name;
+      fileSize.textContent = formatFileSize(file.size);
+      fileType.textContent = getFileType(file);
+      fileInfo.style.display = 'block';
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+    }
+
+    function getFileType(file) {
+      const typeMap = {
+        'application/msword': 'Word Document',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word Document',
+        'application/vnd.ms-excel': 'Excel Spreadsheet',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel Spreadsheet',
+        'application/vnd.ms-powerpoint': 'PowerPoint Presentation',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PowerPoint Presentation'
+      };
+      return typeMap[file.type] || file.type;
+    }
+
+    // Compression simulation
+    compressBtn.addEventListener('click', () => {
+      progressContainer.style.display = 'block';
+      compressBtn.disabled = true;
+      
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 10;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          setTimeout(() => {
+            alert('Compression complete! In a real implementation, this would download the compressed file.');
+            resetUI();
+          }, 500);
+        }
+        updateProgress(progress);
+      }, 200);
+    });
+
+    function updateProgress(percent) {
+      progressBar.style.width = `${percent}%`;
+      progressPercent.textContent = `${Math.round(percent)}%`;
+    }
+
+    function resetUI() {
+      progressContainer.style.display = 'none';
+      progressBar.style.width = '0%';
+      progressPercent.textContent = '0%';
+      fileInfo.style.display = 'none';
+      compressBtn.disabled = true;
+      fileInput.value = '';
+    }
+  </script>
 </body>
 </html>
