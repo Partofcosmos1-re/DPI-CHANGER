@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Merger | Cosmos Tools</title>
+    <title>Document & Image Merger | Cosmos Tools</title>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -45,18 +45,8 @@
             padding: 2rem;
         }
 
-        .container {
-            max-width: 800px;
-            width: 100%;
-        }
-        
-        .tool-card {
-            background: var(--bg-color);
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px var(--shadow-color);
-        }
-
+        .container { max-width: 800px; width: 100%; }
+        .tool-card { background: var(--bg-color); padding: 2rem; border-radius: 16px; box-shadow: 0 8px 30px var(--shadow-color); }
         .tool-header { text-align: center; margin-bottom: 2rem; }
         .tool-header h1 { font-size: 2.5rem; color: var(--primary-color); margin: 0; }
 
@@ -70,6 +60,7 @@
             margin-bottom: 1.5rem;
         }
         .drop-zone p { margin: 0; }
+        .drop-zone .accepted-formats { font-size: 0.8rem; color: #94a3b8; margin-top: 0.5rem; }
         .drop-zone i { font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem; transition: color 0.3s; }
         .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary-color); background: #f7f7ff; }
         .drop-zone:hover i { color: var(--primary-color); }
@@ -85,12 +76,11 @@
             border-radius: 8px;
             margin-bottom: 0.5rem;
             cursor: grab;
-            user-select: none;
         }
         #file-list li:active { cursor: grabbing; }
 
         .file-info { display: flex; align-items: center; gap: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-info i { color: var(--danger-color); }
+        .file-info i { color: var(--primary-color); width: 16px; text-align: center; }
         .file-name { font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .file-remove { color: #94a3b8; cursor: pointer; font-size: 1.2rem; margin-left: 1rem; transition: color 0.3s; }
         .file-remove:hover { color: var(--danger-color); }
@@ -103,42 +93,28 @@
             display: flex; align-items: center; justify-content: center; gap: 0.75rem;
             width: 100%; background-color: var(--primary-color); color: white;
             padding: 1rem; border: none; border-radius: 8px; font-size: 1.1rem;
-            font-weight: 600; cursor: pointer; transition: background-color 0.3s;
+            font-weight: 600; cursor: pointer; transition: all 0.3s;
         }
-        .btn:hover:not(:disabled) { background-color: var(--primary-hover); }
+        .btn:hover:not(:disabled) { background-color: var(--primary-hover); transform: translateY(-2px); }
         .btn:disabled { background-color: #a3a3d5; cursor: not-allowed; }
 
         .home-btn { display: inline-block; margin-bottom: 1.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; }
         .home-btn i { margin-right: 0.5rem; }
-        
         .sortable-ghost { opacity: 0.4; background: #eef2ff; }
-        
         .spinner { width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .ad-container {
-            width: 100%;
-            max-width: 800px;
-            margin: 2rem auto;
-            min-height: 90px;
-            background-color: var(--bg-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #94a3b8;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            width: 100%; max-width: 800px; margin: 2rem auto; min-height: 90px;
+            background-color: var(--bg-color); display: flex; align-items: center; justify-content: center;
+            color: #94a3b8; border: 1px solid var(--border-color); border-radius: 8px;
         }
         
         footer {
-            width: 100%;
-            background: var(--bg-color);
-            text-align: center;
-            padding: 2rem;
-            margin-top: 2rem;
-            border-top: 1px solid var(--border-color);
+            width: 100%; background: var(--bg-color); text-align: center;
+            padding: 2rem; margin-top: auto; border-top: 1px solid var(--border-color);
         }
-        .footer-links { display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 1rem; }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; justify-content: center; margin-bottom: 1rem; }
         .footer-links a { color: var(--text-color); text-decoration: none; transition: color 0.3s; }
         .footer-links a:hover { color: var(--primary-color); }
     </style>
@@ -147,22 +123,20 @@
     <main>
         <div class="container">
             <a href="home.html" class="home-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
-            
             <div class="tool-card">
                 <div class="tool-header">
-                    <h1>PDF Merger</h1>
-                    <p>Combine multiple PDFs by dragging them in the desired order.</p>
+                    <h1>Document & Image Merger</h1>
+                    <p>Combine PDFs and Images (JPG, PNG) into a single PDF file.</p>
                 </div>
                 
                 <div class="drop-zone" id="drop-zone">
                     <i class="fas fa-file-upload"></i>
-                    <p><strong>Drag & drop PDF files here</strong> or click to browse</p>
-                    <input type="file" id="file-input" accept=".pdf" multiple style="display: none;">
+                    <p><strong>Drag & drop files here</strong> or click to browse</p>
+                    <p class="accepted-formats">Supports: PDF, PNG, JPG/JPEG</p>
+                    <input type="file" id="file-input" accept=".pdf, .png, .jpg, .jpeg" multiple style="display: none;">
                 </div>
 
-                <ul id="file-list">
-                    <!-- Selected files will be listed and are draggable here -->
-                </ul>
+                <ul id="file-list"></ul>
 
                 <div class="form-group">
                     <label for="output-name">Output filename:</label>
@@ -171,18 +145,11 @@
 
                 <button class="btn" id="merge-btn" disabled>
                     <i class="fas fa-cogs"></i>
-                    <span>Merge PDFs</span>
+                    <span>Merge Files</span>
                 </button>
             </div>
             
-            <!-- Ad Placeholder -->
-            <div class="ad-container">
-                Your Ad Content Here
-                <!-- Example AdSense code:
-                <ins class="adsbygoogle" style="display:block" data-ad-client="YOUR_CLIENT_ID" data-ad-slot="YOUR_SLOT_ID" data-ad-format="auto" data-full-width-responsive="true"></ins>
-                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-                -->
-            </div>
+            <div class="ad-container">Your Ad Content Here</div>
         </div>
     </main>
 
@@ -196,6 +163,9 @@
     </footer>
 
     <script>
+        // Use the PDFLib namespace
+        const { PDFDocument } = PDFLib;
+
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
         const fileListElem = document.getElementById('file-list');
@@ -204,6 +174,7 @@
 
         let uploadedFiles = [];
         let fileCounter = 0;
+        const acceptedTypes = ['application/pdf', 'image/png', 'image/jpeg'];
 
         new Sortable(fileListElem, { animation: 150, ghostClass: 'sortable-ghost' });
 
@@ -218,18 +189,23 @@
             handleFiles(e.dataTransfer.files);
         });
 
-        mergeBtn.addEventListener('click', mergeAndDownloadPdfs);
+        mergeBtn.addEventListener('click', mergeAndDownload);
 
         function handleFiles(files) {
             [...files].forEach(file => {
-                if (file.type !== 'application/pdf') return;
+                if (!acceptedTypes.includes(file.type)) return;
                 
                 const id = `file_${fileCounter++}`;
                 const listItem = document.createElement('li');
                 listItem.dataset.id = id;
+                
+                let iconClass = 'fa-file';
+                if (file.type === 'application/pdf') iconClass = 'fa-file-pdf';
+                if (file.type.startsWith('image/')) iconClass = 'fa-file-image';
+
                 listItem.innerHTML = `
                     <div class="file-info">
-                        <i class="fas fa-file-pdf"></i>
+                        <i class="fas ${iconClass}"></i>
                         <span class="file-name">${file.name}</span>
                     </div>
                     <i class="fas fa-times-circle file-remove"></i>
@@ -249,20 +225,19 @@
         }
         
         function updateMergeButtonState() {
-            mergeBtn.disabled = fileListElem.children.length < 2;
+            mergeBtn.disabled = fileListElem.children.length < 1;
         }
 
-        async function mergeAndDownloadPdfs() {
+        async function mergeAndDownload() {
             const orderedFileIds = [...fileListElem.querySelectorAll('li')].map(li => li.dataset.id);
-            if (orderedFileIds.length < 2) {
-                alert('Please have at least two PDF files to merge.');
+            if (orderedFileIds.length === 0) {
+                alert('Please add at least one file.');
                 return;
             }
 
             setLoading(true);
 
             try {
-                const { PDFDocument } = PDFLib;
                 const mergedPdf = await PDFDocument.create();
                 
                 for (const id of orderedFileIds) {
@@ -270,23 +245,30 @@
                     if (!fileData) continue;
                     
                     const arrayBuffer = await fileData.file.arrayBuffer();
-                    const sourcePdf = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
-                    
-                    const copiedPages = await mergedPdf.copyPages(sourcePdf, sourcePdf.getPageIndices());
-                    copiedPages.forEach(page => mergedPdf.addPage(page));
+
+                    if (fileData.file.type === 'application/pdf') {
+                        const sourcePdf = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+                        const copiedPages = await mergedPdf.copyPages(sourcePdf, sourcePdf.getPageIndices());
+                        copiedPages.forEach(page => mergedPdf.addPage(page));
+                    } else if (fileData.file.type.startsWith('image/')) {
+                        let image;
+                        if (fileData.file.type === 'image/png') {
+                            image = await mergedPdf.embedPng(arrayBuffer);
+                        } else { // JPG/JPEG
+                            image = await mergedPdf.embedJpg(arrayBuffer);
+                        }
+                        const page = mergedPdf.addPage([image.width, image.height]);
+                        page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
+                    }
                 }
 
                 const mergedPdfBytes = await mergedPdf.save();
-                
-                let filename = outputNameInput.value.trim();
-                if (!filename) filename = 'merged-document.pdf';
-                if (!filename.toLowerCase().endsWith('.pdf')) filename += '.pdf';
-                
+                let filename = outputNameInput.value.trim().replace(/\.pdf$/i, '') + '.pdf';
                 downloadBlob(mergedPdfBytes, filename, 'application/pdf');
 
             } catch (error) {
-                console.error('Error merging PDFs:', error);
-                alert('An error occurred. Some files might be corrupted or encrypted.');
+                console.error('Error merging files:', error);
+                alert('An error occurred. Some files might be corrupted or in an unsupported format.');
             } finally {
                 setLoading(false);
             }
@@ -301,7 +283,7 @@
                 span.textContent = 'Processing...';
                 icon.className = 'spinner';
             } else {
-                span.textContent = 'Merge PDFs';
+                span.textContent = 'Merge Files';
                 icon.className = 'fas fa-cogs';
                 updateMergeButtonState();
             }
