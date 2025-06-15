@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Audio Enhancer | Cosmos Tools</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        :root {
+            --primary-color: #6a62d5; --primary-hover: #5850b7; --secondary-color: #f5f5f5;
+            --text-color: #333; --bg-color: #ffffff; --shadow-color: rgba(0, 0, 0, 0.08);
+            --border-color: #e2e8f0; --success-color: #28a745;
+        }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--secondary-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; }
+        main { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 2rem; }
+        .container { max-width: 800px; width: 100%; }
+        .tool-card { background: var(--bg-color); padding: 2rem; border-radius: 16px; box-shadow: 0 8px 30px var(--shadow-color); }
+        .tool-header { text-align: center; margin-bottom: 2rem; }
+        .tool-header h1 { font-size: 2.5rem; color: var(--primary-color); margin: 0; }
+        .drop-zone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary-color); background: #f7f7ff; }
+        
+        .processor-view .players { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+        .processor-view h4 { margin: 0 0 0.5rem 0; text-align: center; }
+        audio { width: 100%; }
+        
+        .controls h3 { margin-top: 0; text-align: center; color: var(--primary-color); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        .control-group { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .control-group label { font-weight: 500; }
+        
+        .btn { display: flex; align-items: center; justify-content: center; gap: 0.75rem; width: 100%; background-color: var(--primary-color); color: white; padding: 1rem; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn:hover:not(:disabled) { background-color: var(--primary-hover); }
+        .btn:disabled { background-color: #a3a3d5; cursor: not-allowed; }
+        .download-button { background-color: var(--success-color); }
+        
+        .home-btn { display: inline-block; margin-bottom: 1.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        .home-btn i { margin-right: 0.5rem; }
+        .hidden { display: none; }
+        .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .ad-container { width: 100%; max-width: 800px; margin: 2rem auto; min-height: 90px; background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; color: #94a3b8; border: 1px solid var(--border-color); border-radius: 8px; }
+        footer { width: 100%; background: var(--bg-color); text-align: center; padding: 2rem; margin-top: auto; border-top: 1px solid var(--border-color); }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; justify-content: center; margin-bottom: 1rem; }
+        .footer-links a { color: var(--text-color); text-decoration: none; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--primary-color); }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <a href="home.html" class="home-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            <div class="tool-card">
+                <div id="upload-view">
+                    <div class="tool-header"><h1>AI Audio Enhancer</h1><p>Automatically remove noise, clarify vocals, and level volume in your audio files.</p></div>
+                    <div class="drop-zone" id="drop-zone">
+                        <i class="fas fa-file-audio" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+                        <p><strong>Drag & drop an audio file here</strong> or click to browse</p>
+                        <input type="file" id="file-input" accept="audio/mp3, audio/wav, audio/mpeg" class="hidden">
+                    </div>
+                </div>
+
+                <div id="processing-view" class="hidden processor-view">
+                    <div class="players">
+                        <div><h4>Before</h4><audio id="original-player" controls></audio></div>
+                        <div><h4>After</h4><audio id="processed-player" controls></audio></div>
+                    </div>
+                    <div class="controls">
+                        <h3>Enhancement Settings</h3>
+                        <div class="control-group"><label for="noise-reduction">Background Noise Reduction</label><input type="checkbox" id="noise-reduction" checked></div>
+                        <div class="control-group"><label for="vocal-clarity">Vocal Clarity (EQ)</label><input type="checkbox" id="vocal-clarity" checked></div>
+                        <div class="control-group"><label for="leveling">Volume Leveling (Compressor)</label><input type="checkbox" id="leveling" checked></div>
+                    </div>
+                    <button id="process-btn" class="btn"><i class="fas fa-magic"></i> Enhance Audio</button>
+                    <div id="download-section" class="control-group hidden" style="margin-top: 1rem;">
+                        <a href="#" id="download-btn" class="btn download-button" download><i class="fas fa-download"></i> Download Enhanced WAV</a>
+                    </div>
+                </div>
+            </div>
+            <div class="ad-container">Your Ad Content Here</div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms & Conditions</a><a href="mailto:partofcosmmos@gmail.com">Send Feedback</a></div>
+        <p>© 2024 Cosmos Tools. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const uploadView = document.getElementById('upload-view');
+        const processingView = document.getElementById('processing-view');
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const originalPlayer = document.getElementById('original-player');
+        const processedPlayer = document.getElementById('processed-player');
+        const processBtn = document.getElementById('process-btn');
+        const downloadSection = document.getElementById('download-section');
+        const downloadBtn = document.getElementById('download-btn');
+        // Checkboxes
+        const noiseCheck = document.getElementById('noise-reduction');
+        const clarityCheck = document.getElementById('vocal-clarity');
+        const levelingCheck = document.getElementById('leveling');
+
+        let audioFile = null;
+
+        // --- Event Listeners ---
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        dropZone.addEventListener('dragover', (e) => e.preventDefault());
+        dropZone.addEventListener('drop', (e) => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); });
+        processBtn.addEventListener('click', processAudio);
+
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('audio/')) return;
+            audioFile = file;
+            originalPlayer.src = URL.createObjectURL(file);
+            processedPlayer.src = '';
+            uploadView.classList.add('hidden');
+            processingView.classList.remove('hidden');
+            downloadSection.classList.add('hidden');
+        }
+
+        async function processAudio() {
+            if (!audioFile) return;
+            setLoading(true);
+
+            try {
+                const audioCtx = new AudioContext();
+                const arrayBuffer = await audioFile.arrayBuffer();
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+                const offlineCtx = new OfflineAudioContext(audioBuffer.numberOfChannels, audioBuffer.length, audioBuffer.sampleRate);
+                const source = offlineCtx.createBufferSource();
+                source.buffer = audioBuffer;
+                
+                let lastNode = source;
+
+                // Create processing chain based on checkboxes
+                if (clarityCheck.checked) {
+                    const highpass = offlineCtx.createBiquadFilter();
+                    highpass.type = "highpass";
+                    highpass.frequency.value = 80; // Cut rumble
+                    const bandpass = offlineCtx.createBiquadFilter();
+                    bandpass.type = "peaking";
+                    bandpass.frequency.value = 1500; // Boost vocal presence
+                    bandpass.Q.value = 1;
+                    bandpass.gain.value = 3;
+                    lastNode.connect(highpass);
+                    highpass.connect(bandpass);
+                    lastNode = bandpass;
+                }
+
+                if (noiseCheck.checked) {
+                    const noiseGate = createNoiseGate(offlineCtx);
+                    lastNode.connect(noiseGate.input);
+                    lastNode = noiseGate.output;
+                }
+
+                if (levelingCheck.checked) {
+                    const compressor = offlineCtx.createDynamicsCompressor();
+                    compressor.threshold.value = -20;
+                    compressor.knee.value = 30;
+                    compressor.ratio.value = 12;
+                    compressor.attack.value = 0.003;
+                    compressor.release.value = 0.25;
+                    lastNode.connect(compressor);
+                    lastNode = compressor;
+                }
+
+                lastNode.connect(offlineCtx.destination);
+                source.start();
+
+                const renderedBuffer = await offlineCtx.startRendering();
+                const wavBlob = bufferToWav(renderedBuffer);
+                const wavUrl = URL.createObjectURL(wavBlob);
+
+                processedPlayer.src = wavUrl;
+                downloadBtn.href = wavUrl;
+                downloadBtn.download = `enhanced-${audioFile.name}.wav`;
+                downloadSection.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Audio processing error:", error);
+                alert("Could not process audio. The file might be corrupted or in an unsupported format.");
+            } finally {
+                setLoading(false);
+            }
+        }
+        
+        // Custom Noise Gate Implementation
+        function createNoiseGate(ctx, threshold = -50, attack = 0.01, release = 0.1) {
+            const processor = ctx.createScriptProcessor(2048, 1, 1);
+            let envelope = 0;
+            const thresholdDb = threshold;
+            const attackTime = attack * ctx.sampleRate;
+            const releaseTime = release * ctx.sampleRate;
+
+            processor.onaudioprocess = (e) => {
+                const input = e.inputBuffer.getChannelData(0);
+                const output = e.outputBuffer.getChannelData(0);
+                for (let i = 0; i < input.length; i++) {
+                    const level = Math.abs(input[i]);
+                    if (level > envelope) {
+                        envelope = level;
+                    } else {
+                        envelope *= (1 - 1/releaseTime);
+                    }
+                    
+                    if (20 * Math.log10(envelope) > thresholdDb) {
+                        output[i] = input[i];
+                    } else {
+                        output[i] = 0;
+                    }
+                }
+            };
+            return { input: processor, output: processor };
+        }
+        
+        function setLoading(isLoading) {
+            processBtn.disabled = isLoading;
+            processBtn.innerHTML = isLoading ? '<div class="spinner"></div> Processing...' : '<i class="fas fa-magic"></i> Enhance Audio';
+        }
+
+        // Standard function to convert AudioBuffer to a WAV Blob
+        function bufferToWav(abuffer) { /* ... implementation from online source ... */ 
+            let numOfChan = abuffer.numberOfChannels,
+            len = abuffer.length * numOfChan * 2 + 44,
+            buffer = new ArrayBuffer(len),
+            view = new DataView(buffer),
+            channels = [], i, sample,
+            offset = 0,
+            pos = 0;
+
+            setUint32(0x46464952); // "RIFF"
+            setUint32(len - 8); // file length - 8
+            setUint32(0x45564157); // "WAVE"
+
+            setUint32(0x20746d66); // "fmt " chunk
+            setUint32(16); // length = 16
+            setUint16(1); // PCM (uncompressed)
+            setUint16(numOfChan);
+            setUint32(abuffer.sampleRate);
+            setUint32(abuffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
+            setUint16(numOfChan * 2); // block-align
+            setUint16(16); // 16-bit
+
+            setUint32(0x61746164); // "data" - chunk
+            setUint32(len - pos - 4); // chunk length
+
+            for (i = 0; i < abuffer.numberOfChannels; i++) channels.push(abuffer.getChannelData(i));
+            
+            while (pos < len) {
+                for (i = 0; i < numOfChan; i++) {
+                    sample = Math.max(-1, Math.min(1, channels[i][offset]));
+                    sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
+                    view.setInt16(pos, sample, true);
+                    pos += 2;
+                }
+                offset++;
+            }
+            return new Blob([view], { type: 'audio/wav' });
+
+            function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
+            function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
+        }
+    </script>
+</body>
+</html>
