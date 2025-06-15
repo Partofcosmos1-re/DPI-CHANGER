@@ -1,93 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Same header styles as index.html -->
-  <title>PDF Merger | Cosmos Tools</title>
-  <style>
-    /* Same base styles as index.html */
-    .drop-zone {
-      border: 2px dashed var(--gray);
-      border-radius: var(--radius);
-      padding: 3rem;
-      text-align: center;
-      margin-bottom: 1.5rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .drop-zone:hover {
-      border-color: var(--primary);
-      background: rgba(99, 102, 241, 0.05);
-    }
-    .file-list {
-      margin: 1.5rem 0;
-    }
-    .file-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.75rem;
-      border-bottom: 1px solid #eee;
-    }
-    .file-item:last-child {
-      border-bottom: none;
-    }
-    .file-remove {
-      color: var(--danger);
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Merger | Cosmos Tools</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #6a62d5;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --bg-color: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --danger-color: #e53e3e;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 2rem;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .tool-header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+        
+        .tool-card {
+            background: var(--bg-color);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .drop-zone {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--primary-color);
+            background: #f7f7ff;
+        }
+
+        .file-list {
+            margin: 1.5rem 0;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-remove {
+            color: var(--danger-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #5850b7;
+        }
+
+        .home-btn {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .home-btn i {
+            margin-right: 0.5rem;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>PDF Merger</h1>
-    <p>Combine multiple PDF files into one document</p>
-  </header>
+    <div class="container">
+        <a href="home.html" class="home-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        
+        <div class="tool-card">
+            <div class="tool-header">
+                <h1>PDF Merger</h1>
+                <p>Combine multiple PDF files into one single document</p>
+            </div>
+            
+            <div class="drop-zone" id="drop-zone">
+                <i class="fas fa-file-pdf" style="font-size: 3rem; color: #d1d5db; margin-bottom: 1rem;"></i>
+                <p><strong>Drag & drop PDF files here</strong> or click to browse</p>
+                <input type="file" id="file-input" accept=".pdf" multiple style="display: none;">
+            </div>
 
-  <div class="container">
-    <div class="tool-card">
-      <h2>Merge PDF Files</h2>
-      <div class="drop-zone" id="drop-zone">
-        <i class="fas fa-file-pdf" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
-        <p>Drag & drop PDF files here or click to browse</p>
-        <input type="file" id="file-input" accept=".pdf" multiple style="display: none;">
-      </div>
+            <div class="file-list" id="file-list">
+                <!-- Selected files will appear here -->
+            </div>
 
-      <div class="file-list" id="file-list">
-        <!-- Files will appear here -->
-      </div>
+            <div class="form-group">
+                <label for="output-name">Output filename:</label>
+                <input type="text" id="output-name" placeholder="merged-document.pdf">
+            </div>
 
-      <div class="form-group">
-        <label for="output-name">Output filename:</label>
-        <input type="text" id="output-name" class="tool-card" placeholder="merged-document.pdf" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: var(--radius);">
-      </div>
-
-      <button class="btn" id="merge-btn">Merge PDFs</button>
+            <button class="btn" id="merge-btn">Merge PDFs</button>
+        </div>
     </div>
 
-    <div class="instructions">
-      <h3>PDF Merger Instructions:</h3>
-      <ol>
-        <li>Add PDF files by dragging or browsing</li>
-        <li>Reorder files by dragging (if needed)</li>
-        <li>Set output filename (optional)</li>
-        <li>Click "Merge PDFs" to combine files</li>
-        <li>Download your merged PDF document</li>
-      </ol>
-    </div>
-  </div>
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const fileList = document.getElementById('file-list');
 
-  <div class="floating-ai" onclick="window.location.href='ai_assistant.html'">
-    <i class="fas fa-robot"></i>
-  </div>
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
 
-  <script>
-    // PDF merger functionality would go here
-    document.getElementById('drop-zone').addEventListener('click', function() {
-      document.getElementById('file-input').click();
-    });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
 
-    document.getElementById('merge-btn').addEventListener('click', function() {
-      alert('In a real implementation, this would merge the PDFs. For now, it just shows this message.');
-    });
-  </script>
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+        
+        fileInput.addEventListener('change', () => {
+            handleFiles(fileInput.files);
+        });
+
+        function handleFiles(files) {
+            for (const file of files) {
+                if (file.type === 'application/pdf') {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `<span class="file-name">${file.name}</span> <i class="fas fa-times-circle file-remove"></i>`;
+                    fileList.appendChild(fileItem);
+
+                    fileItem.querySelector('.file-remove').addEventListener('click', () => {
+                        fileItem.remove();
+                    });
+                }
+            }
+        }
+        
+        document.getElementById('merge-btn').addEventListener('click', function() {
+            alert('This would merge the PDFs in a full implementation!');
+        });
+    </script>
 </body>
 </html>
