@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Resolution Reducer | Cosmos Tools</title>
-    <!-- Font Awesome for icons -->
+    <title>Advanced Image Reducer | Cosmos Tools</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Pica.js: For high-quality image resizing -->
     <script src="https://cdn.jsdelivr.net/npm/pica@9.0.1/dist/pica.min.js"></script>
 
     <style>
@@ -15,38 +12,45 @@
         :root {
             --primary-color: #6a62d5; --primary-hover: #5850b7; --secondary-color: #f5f5f5;
             --text-color: #333; --bg-color: #ffffff; --shadow-color: rgba(0, 0, 0, 0.08);
-            --danger-color: #e53e3e; --border-color: #e2e8f0; --success-color: #28a745;
+            --border-color: #e2e8f0; --success-color: #28a745; --info-color: #31708f;
         }
         body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--secondary-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; }
         main { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 2rem; }
-        .container { max-width: 1000px; width: 100%; }
+        .container { max-width: 1100px; width: 100%; }
         .tool-card { background: var(--bg-color); padding: 2rem; border-radius: 16px; box-shadow: 0 8px 30px var(--shadow-color); }
         .tool-header { text-align: center; margin-bottom: 2rem; }
         .tool-header h1 { font-size: 2.5rem; color: var(--primary-color); margin: 0; }
         .drop-zone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s; }
         .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary-color); background: #f7f7ff; }
-        .processor-area { display: grid; grid-template-columns: 1fr 320px; gap: 2rem; }
+        
+        .processor-area { display: grid; grid-template-columns: 1fr 340px; gap: 2rem; }
         @media (max-width: 900px) { .processor-area { grid-template-columns: 1fr; } }
+        
         .previews { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .preview-box { border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; text-align: center; }
-        .preview-box img { max-width: 100%; height: auto; border-radius: 4px; }
+        .preview-box img { max-width: 100%; height: auto; min-height:100px; border-radius: 4px; background: repeating-conic-gradient(var(--secondary-color) 0% 25%, #fff 0% 50%) 50% / 20px 20px; }
         .preview-box h4 { margin: 0 0 0.5rem 0; }
         .info { font-size: 0.85rem; }
         .info .file-size { font-weight: 600; }
         .info .reduction { font-weight: 600; color: var(--success-color); }
-        .controls h3 { margin-top: 0; text-align: center; color: var(--primary-color); }
+
+        .controls h3 { margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; }
         .control-group { margin-bottom: 1.5rem; }
         .control-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
         input[type="range"] { width: 100%; }
+        
         .btn { display: flex; align-items: center; justify-content: center; gap: 0.75rem; width: 100%; background-color: var(--primary-color); color: white; padding: 1rem; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
         .btn:hover:not(:disabled) { background-color: var(--primary-hover); }
         .btn:disabled { background-color: #a3a3d5; cursor: not-allowed; }
         .download-button { background-color: var(--success-color); }
-        .download-button:hover { background-color: #218838; }
+        
         .home-btn { display: inline-block; margin-bottom: 1.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; }
         .home-btn i { margin-right: 0.5rem; }
         .hidden { display: none; }
-        .ad-container { width: 100%; max-width: 1000px; margin: 2rem auto; min-height: 90px; background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; color: #94a3b8; border: 1px solid var(--border-color); border-radius: 8px; }
+        .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .ad-container { width: 100%; max-width: 1100px; margin: 2rem auto; min-height: 90px; background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; color: #94a3b8; border: 1px solid var(--border-color); border-radius: 8px; }
         footer { width: 100%; background: var(--bg-color); text-align: center; padding: 2rem; margin-top: auto; border-top: 1px solid var(--border-color); }
         .footer-links { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; justify-content: center; margin-bottom: 1rem; }
         .footer-links a { color: var(--text-color); text-decoration: none; transition: color 0.3s; }
@@ -59,231 +63,249 @@
             <a href="home.html" class="home-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
             <div class="tool-card">
                 <div id="upload-view">
-                    <div class="tool-header"><h1>Image Resolution & Size Reducer</h1></div>
+                    <div class="tool-header"><h1>Advanced Image Reducer</h1><p>Intelligently reduce file size with high-quality resizing and color quantization.</p></div>
                     <div class="drop-zone" id="drop-zone">
                         <i class="fas fa-file-image" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
                         <p><strong>Drag & drop an image here</strong> or click to browse</p>
-                        <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp" class="hidden">
+                        <input type="file" id="file-input" accept="image/png, image/jpeg" class="hidden">
                     </div>
                 </div>
 
                 <div id="editor-view" class="hidden">
                     <div class="processor-area">
                         <div class="previews">
-                            <div class="preview-box">
-                                <h4>Before</h4>
-                                <img id="original-preview" src="" alt="Original Image">
-                                <div id="original-info" class="info"></div>
-                            </div>
-                            <div class="preview-box">
-                                <h4>After</h4>
-                                <img id="processed-preview" src="" alt="Processed Image">
-                                <div id="processed-info" class="info"></div>
-                            </div>
+                            <div class="preview-box"><h4>Before</h4><img id="original-preview" alt="Original"><div id="original-info" class="info"></div></div>
+                            <div class="preview-box"><h4>After</h4><img id="processed-preview" alt="Processed"><div id="processed-info" class="info"></div></div>
                         </div>
                         <div class="controls">
-                            <h3>Controls</h3>
-                            <div class="control-group">
-                                <label for="scale-slider">Scale: <span id="scale-value">50</span>%</label>
-                                <input type="range" id="scale-slider" min="1" max="100" value="50">
-                            </div>
+                            <h3>Standard Controls</h3>
                             <div class="control-group">
                                 <label for="width-input">Target Width (px)</label>
                                 <input type="number" id="width-input" class="form-control">
                             </div>
-                             <div class="control-group">
+                             <div id="jpeg-quality-group" class="control-group">
                                 <label for="quality-slider">JPEG Quality: <span id="quality-value">80</span></label>
                                 <input type="range" id="quality-slider" min="1" max="100" value="80">
                             </div>
+
+                            <h3>"Perceptual Quality" Engine</h3>
                             <div class="control-group">
-                                <label for="dithering-check">
-                                    <input type="checkbox" id="dithering-check"> 1-Bit Dithering (B&W Effect)
-                                </label>
+                                <label for="color-slider">Max Colors: <span id="color-value">256</span></label>
+                                <input type="range" id="color-slider" min="2" max="256" value="256" step="1">
                             </div>
+                            <div class="control-group">
+                                <label><input type="checkbox" id="dithering-check"> Use Dithering</label>
+                            </div>
+
                             <button id="process-btn" class="btn"><i class="fas fa-cogs"></i> Reduce Image</button>
                             <div id="download-section" class="control-group hidden" style="margin-top: 1rem;">
-                                <a href="#" id="download-btn" class="btn download-button" download><i class="fas fa-download"></i> Download Image</a>
+                                <a href="#" id="download-btn" class="btn download-button" download><i class="fas fa-download"></i> Download</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-             <!-- Ad Placeholder -->
-            <div class="ad-container">Your Ad Content Here</div>
+             <div class="ad-container">Your Ad Content Here</div>
         </div>
     </main>
-
     <footer>
-        <div class="footer-links">
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="terms.html">Terms & Conditions</a>
-            <a href="mailto:partofcosmmos@gmail.com">Send Feedback</a>
-        </div>
+        <div class="footer-links"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms & Conditions</a><a href="mailto:partofcosmmos@gmail.com">Send Feedback</a></div>
         <p>© 2024 Cosmos Tools. All Rights Reserved.</p>
     </footer>
 
     <script>
         const picaInstance = pica();
         // DOM Elements
-        const uploadView = document.getElementById('upload-view');
-        const editorView = document.getElementById('editor-view');
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
-        // Previews
-        const originalPreview = document.getElementById('original-preview');
-        const processedPreview = document.getElementById('processed-preview');
-        const originalInfo = document.getElementById('original-info');
-        const processedInfo = document.getElementById('processed-info');
+        const uploadView = document.getElementById('upload-view'), editorView = document.getElementById('editor-view');
+        const dropZone = document.getElementById('drop-zone'), fileInput = document.getElementById('file-input');
+        const originalPreview = document.getElementById('original-preview'), processedPreview = document.getElementById('processed-preview');
+        const originalInfo = document.getElementById('original-info'), processedInfo = document.getElementById('processed-info');
         // Controls
-        const scaleSlider = document.getElementById('scale-slider');
-        const scaleValue = document.getElementById('scale-value');
         const widthInput = document.getElementById('width-input');
-        const qualitySlider = document.getElementById('quality-slider');
-        const qualityValue = document.getElementById('quality-value');
+        const jpegQualityGroup = document.getElementById('jpeg-quality-group'), qualitySlider = document.getElementById('quality-slider'), qualityValue = document.getElementById('quality-value');
+        const colorSlider = document.getElementById('color-slider'), colorValue = document.getElementById('color-value');
         const ditheringCheck = document.getElementById('dithering-check');
-        // Buttons & Links
-        const processBtn = document.getElementById('process-btn');
-        const downloadSection = document.getElementById('download-section');
-        const downloadBtn = document.getElementById('download-btn');
+        const processBtn = document.getElementById('process-btn'), downloadSection = document.getElementById('download-section'), downloadBtn = document.getElementById('download-btn');
         
-        let originalFile = null;
-        let originalAspectRatio = 1;
+        let originalFile = null, originalImageElement = new Image(), originalAspectRatio = 1;
 
-        // Event Listeners
+        // --- EVENT LISTENERS ---
         dropZone.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
         dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
         dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); });
         
-        scaleSlider.addEventListener('input', () => {
-            scaleValue.textContent = scaleSlider.value;
-            const newWidth = Math.round(originalPreview.naturalWidth * (scaleSlider.value / 100));
-            widthInput.value = newWidth;
-        });
-        
-        widthInput.addEventListener('input', () => {
-            if (originalPreview.naturalWidth > 0) {
-                const newScale = Math.round((widthInput.value / originalPreview.naturalWidth) * 100);
-                scaleSlider.value = Math.min(100, Math.max(1, newScale || 1));
-                scaleValue.textContent = scaleSlider.value;
-            }
-        });
-        
+        // Wire up controls
         qualitySlider.addEventListener('input', () => { qualityValue.textContent = qualitySlider.value; });
+        colorSlider.addEventListener('input', () => { colorValue.textContent = colorSlider.value; });
         processBtn.addEventListener('click', processImage);
 
+        // --- CORE FUNCTIONS ---
         function handleFile(file) {
             if (!file || !file.type.startsWith('image/')) return;
             originalFile = file;
             const reader = new FileReader();
             reader.onload = (e) => {
-                originalPreview.src = e.target.result;
-                originalPreview.onload = () => {
-                    originalAspectRatio = originalPreview.naturalWidth / originalPreview.naturalHeight;
-                    originalInfo.innerHTML = `
-                        <p>${originalPreview.naturalWidth} x ${originalPreview.naturalHeight}</p>
-                        <p class="file-size">${formatBytes(originalFile.size)}</p>
-                    `;
-                    scaleSlider.value = 50;
-                    scaleValue.textContent = '50';
-                    widthInput.value = Math.round(originalPreview.naturalWidth * 0.5);
-                    processedPreview.src = '';
-                    processedInfo.innerHTML = '';
-                    downloadSection.classList.add('hidden');
-                    uploadView.classList.add('hidden');
-                    editorView.classList.remove('hidden');
+                originalImageElement.src = e.target.result;
+                originalImageElement.onload = () => {
+                    originalAspectRatio = originalImageElement.naturalWidth / originalImageElement.naturalHeight;
+                    originalPreview.src = originalImageElement.src;
+                    originalInfo.innerHTML = `<p>${originalImageElement.naturalWidth}x${originalImageElement.naturalHeight}</p><p class="file-size">${formatBytes(originalFile.size)}</p>`;
+                    widthInput.value = Math.round(originalImageElement.naturalWidth * 0.75);
+                    resetUI();
                 }
             };
             reader.readAsDataURL(file);
         }
 
+        function resetUI() {
+            processedPreview.src = '';
+            processedInfo.innerHTML = '';
+            downloadSection.classList.add('hidden');
+            uploadView.classList.add('hidden');
+            editorView.classList.remove('hidden');
+        }
+
         async function processImage() {
+            setLoading(true);
             const toCanvas = document.createElement('canvas');
             const targetWidth = parseInt(widthInput.value, 10);
             const targetHeight = Math.round(targetWidth / originalAspectRatio);
-            toCanvas.width = targetWidth;
-            toCanvas.height = targetHeight;
+            toCanvas.width = targetWidth; toCanvas.height = targetHeight;
             
-            setLoading(true);
-
             try {
-                await picaInstance.resize(originalPreview, toCanvas, { alpha: true });
-
-                if (ditheringCheck.checked) {
-                    applyDithering(toCanvas);
+                // 1. High-quality resize
+                await picaInstance.resize(originalImageElement, toCanvas, { alpha: true });
+                const ctx = toCanvas.getContext('2d', { willReadFrequently: true });
+                let imageData = ctx.getImageData(0, 0, targetWidth, targetHeight);
+                const maxColors = parseInt(colorSlider.value);
+                
+                // Determine best output format
+                // If user reduces colors or original is PNG, default to PNG. Otherwise, JPEG.
+                let outputMimeType = 'image/jpeg';
+                if (maxColors < 256 || originalFile.type === 'image/png') {
+                    outputMimeType = 'image/png';
+                }
+                
+                if (outputMimeType === 'image/png') {
+                    jpegQualityGroup.classList.add('hidden');
+                    // 2. Build new color palette (Quantization)
+                    const palette = buildPalette(imageData, maxColors);
+                    // 3. Apply palette and dithering
+                    applyPalette(imageData, palette, ditheringCheck.checked);
+                    ctx.putImageData(imageData, 0, 0);
+                } else {
+                    jpegQualityGroup.classList.remove('hidden');
                 }
 
-                const quality = ditheringCheck.checked ? 1 : parseInt(qualitySlider.value, 10) / 100;
-                const mimeType = ditheringCheck.checked ? 'image/png' : 'image/jpeg';
-                
+                // 4. Generate Blob and show results
+                const quality = parseInt(qualitySlider.value, 10) / 100;
                 toCanvas.toBlob(blob => {
                     const url = URL.createObjectURL(blob);
                     processedPreview.src = url;
-                    downloadBtn.href = url;
-                    downloadBtn.download = `reduced-${originalFile.name}`;
                     
+                    const extension = outputMimeType.split('/')[1];
+                    downloadBtn.href = url;
+                    downloadBtn.download = `reduced-${originalFile.name.split('.').slice(0,-1).join('.')}.${extension}`;
+
                     const sizeReduction = 100 - (blob.size / originalFile.size) * 100;
                     processedInfo.innerHTML = `
-                        <p>${targetWidth} x ${targetHeight}</p>
-                        <p class="file-size">${formatBytes(blob.size)}</p>
-                        <p class="reduction">Size reduced by ${sizeReduction.toFixed(1)}%</p>
-                    `;
+                        <p>${targetWidth}x${targetHeight}</p>
+                        <p class="file-size">${formatBytes(blob.size)} <span style="font-size:0.8em;color:#777;">(${outputMimeType.split('/')[1]})</span></p>
+                        <p class="${sizeReduction > 0 ? 'reduction' : 'danger'}">
+                            ${sizeReduction > 0 ? `Reduced by ${sizeReduction.toFixed(1)}%` : `Increased by ${-sizeReduction.toFixed(1)}%`}
+                        </p>`;
                     downloadSection.classList.remove('hidden');
                     setLoading(false);
-                }, mimeType, quality);
+                }, outputMimeType, quality);
 
             } catch (error) {
                 console.error("Processing error:", error);
-                alert("An error occurred during processing.");
+                alert("An error occurred. The image might be in an unsupported format.");
                 setLoading(false);
             }
         }
         
-        function applyDithering(canvas) {
-            const ctx = canvas.getContext('2d');
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const d = imageData.data;
-            const width = canvas.width;
-
-            // Grayscale
-            for (let i = 0; i < d.length; i += 4) {
-                const r = d[i];
-                const g = d[i+1];
-                const b = d[i+2];
-                const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-                d[i] = d[i+1] = d[i+2] = gray;
+        // --- The "Secret Sauce" Algorithms ---
+        function buildPalette(imageData, maxColors) {
+            const data = imageData.data;
+            const colorSet = new Set();
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i+3] > 128) { // Only opaque pixels
+                    colorSet.add(`${data[i]},${data[i+1]},${data[i+2]}`);
+                }
             }
 
-            // Floyd-Steinberg Dithering
-            for (let i = 0; i < d.length; i += 4) {
-                const oldPixel = d[i];
-                const newPixel = oldPixel < 128 ? 0 : 255;
-                d[i] = d[i+1] = d[i+2] = newPixel;
-                const quantError = oldPixel - newPixel;
+            const uniqueColors = Array.from(colorSet).map(s => s.split(',').map(Number));
+            if (uniqueColors.length <= maxColors) return uniqueColors.map(c => [c[0],c[1],c[2]]);
 
-                // Propagate error
-                d[i + 4] += quantError * 7 / 16;
-                d[i + 4 * width - 4] += quantError * 3 / 16;
-                d[i + 4 * width] += quantError * 5 / 16;
-                d[i + 4 * width + 4] += quantError * 1 / 16;
+            // Simplified Median Cut for quantization
+            let buckets = [uniqueColors];
+            while (buckets.length < maxColors) {
+                let newBuckets = [];
+                for(const bucket of buckets) {
+                    if (bucket.length < 2) { newBuckets.push(bucket); continue; }
+                    const rangeR = Math.max(...bucket.map(c => c[0])) - Math.min(...bucket.map(c => c[0]));
+                    const rangeG = Math.max(...bucket.map(c => c[1])) - Math.min(...bucket.map(c => c[1]));
+                    const rangeB = Math.max(...bucket.map(c => c[2])) - Math.min(...bucket.map(c => c[2]));
+                    const sortIndex = rangeR > rangeG ? (rangeR > rangeB ? 0 : 2) : (rangeG > rangeB ? 1 : 2);
+                    bucket.sort((a,b) => a[sortIndex] - b[sortIndex]);
+                    const mid = Math.floor(bucket.length / 2);
+                    newBuckets.push(bucket.slice(0, mid));
+                    newBuckets.push(bucket.slice(mid));
+                }
+                buckets = newBuckets;
+                if (buckets.length >= maxColors) break;
             }
-            ctx.putImageData(imageData, 0, 0);
+
+            // Average the colors in each bucket to get the final palette
+            return buckets.map(bucket => {
+                if(bucket.length === 0) return [0,0,0];
+                const total = bucket.reduce((acc, c) => [acc[0] + c[0], acc[1] + c[1], acc[2] + c[2]], [0,0,0]);
+                return [Math.round(total[0]/bucket.length), Math.round(total[1]/bucket.length), Math.round(total[2]/bucket.length)];
+            });
         }
+        
+        function applyPalette(imageData, palette, useDithering) {
+            const d = imageData.data;
+            const w = imageData.width;
+            const findClosest = (c) => {
+                let min_d = Infinity, best_c;
+                for(const p of palette) {
+                    const dist = (c[0]-p[0])**2 + (c[1]-p[1])**2 + (c[2]-p[2])**2;
+                    if(dist < min_d) { min_d = dist; best_c = p; }
+                }
+                return best_c;
+            }
 
+            for (let y = 0; y < imageData.height; y++) {
+                for (let x = 0; x < w; x++) {
+                    const i = (y * w + x) * 4;
+                    if (d[i+3] < 128) continue; // Skip transparent
+                    const oldPixel = [d[i], d[i+1], d[i+2]];
+                    const newPixel = findClosest(oldPixel);
+                    d[i] = newPixel[0]; d[i+1] = newPixel[1]; d[i+2] = newPixel[2];
+                    
+                    if(useDithering) {
+                        const err = [oldPixel[0]-newPixel[0], oldPixel[1]-newPixel[1], oldPixel[2]-newPixel[2]];
+                        // Propagate error (Floyd-Steinberg)
+                        const p1 = (y*w + x+1)*4, p2=(y+1)*w+x-1)*4, p3=(y+1)*w+x)*4, p4=(y+1)*w+x+1)*4;
+                        if(x+1 < w){ d[p1] += err[0] * 7/16; d[p1+1] += err[1] * 7/16; d[p1+2] += err[2] * 7/16; }
+                        if(x-1 > 0 && y+1 < imageData.height) { d[p2] += err[0] * 3/16; d[p2+1] += err[1] * 3/16; d[p2+2] += err[2] * 3/16; }
+                        if(y+1 < imageData.height){ d[p3] += err[0] * 5/16; d[p3+1] += err[1] * 5/16; d[p3+2] += err[2] * 5/16; }
+                        if(x+1 < w && y+1 < imageData.height){ d[p4] += err[0] * 1/16; d[p4+1] += err[1] * 1/16; d[p4+2] += err[2] * 1/16; }
+                    }
+                }
+            }
+        }
+        
+        // --- UTILITY FUNCTIONS ---
         function setLoading(isLoading) {
             processBtn.disabled = isLoading;
-            processBtn.innerHTML = isLoading ? '<div class="spinner-border spinner-border-sm" role="status"></div> Processing...' : '<i class="fas fa-cogs"></i> Reduce Image';
+            processBtn.innerHTML = isLoading ? '<div class="spinner"></div>' : '<i class="fas fa-cogs"></i> Reduce Image';
         }
-
-        function formatBytes(bytes, decimals = 2) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        }
+        function formatBytes(bytes, d=2) { if(!+bytes)return"0 Bytes";const i=Math.floor(Math.log(bytes)/Math.log(1024));return`${parseFloat((bytes/Math.pow(1024,i)).toFixed(d))} ${["B","KB","MB"][i]}`;}
     </script>
 </body>
 </html>
