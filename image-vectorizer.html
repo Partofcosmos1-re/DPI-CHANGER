@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Vectorizer | Cosmos Tools</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ImageTracer.js: The core library -->
+    <script src="https://cdn.jsdelivr.net/npm/image-tracer-js@1.2.6/imagetracer_v1.2.6.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        :root {
+            --primary-color: #6a62d5; --primary-hover: #5850b7; --secondary-color: #f5f5f5;
+            --text-color: #333; --bg-color: #ffffff; --shadow-color: rgba(0, 0, 0, 0.08);
+            --border-color: #e2e8f0; --success-color: #28a745;
+        }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--secondary-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; }
+        main { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 2rem; }
+        .container { max-width: 1100px; width: 100%; }
+        .tool-card { background: var(--bg-color); padding: 2rem; border-radius: 16px; box-shadow: 0 8px 30px var(--shadow-color); }
+        .tool-header { text-align: center; margin-bottom: 2rem; }
+        .tool-header h1 { font-size: 2.5rem; color: var(--primary-color); margin: 0; }
+        .drop-zone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary-color); background: #f7f7ff; }
+
+        .processor-area { display: grid; grid-template-columns: 1fr 340px; gap: 2rem; }
+        @media (max-width: 900px) { .processor-area { grid-template-columns: 1fr; } }
+        .previews { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        .preview-box { border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; text-align: center; background: #fff;}
+        .preview-box #svg-preview { width: 100%; height: auto; }
+        .preview-box h4 { margin: 0 0 0.5rem 0; }
+
+        .controls h3 { margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        .control-group { margin-bottom: 1.5rem; }
+        .control-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        input[type="range"] { width: 100%; }
+        
+        .btn { display: flex; align-items: center; justify-content: center; gap: 0.75rem; width: 100%; background-color: var(--primary-color); color: white; padding: 1rem; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn:hover:not(:disabled) { background-color: var(--primary-hover); }
+        .btn:disabled { background-color: #a3a3d5; cursor: not-allowed; }
+        .download-button { background-color: var(--success-color); }
+        
+        .home-btn { display: inline-block; margin-bottom: 1.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        .home-btn i { margin-right: 0.5rem; }
+        .hidden { display: none; }
+        .ad-container { width: 100%; max-width: 1100px; margin: 2rem auto; min-height: 90px; background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; color: #94a3b8; border: 1px solid var(--border-color); border-radius: 8px; }
+        footer { width: 100%; background: var(--bg-color); text-align: center; padding: 2rem; margin-top: auto; border-top: 1px solid var(--border-color); }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; justify-content: center; margin-bottom: 1rem; }
+        .footer-links a { color: var(--text-color); text-decoration: none; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--primary-color); }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <a href="home.html" class="home-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            <div class="tool-card">
+                 <div id="upload-view">
+                    <div class="tool-header"><h1>Image Vectorizer</h1><p>Convert logos and images into clean, scalable SVG files.</p></div>
+                    <div class="drop-zone" id="drop-zone">
+                        <i class="fas fa-file-image" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+                        <p><strong>Drag & drop a PNG/JPG here</strong> or click to browse</p>
+                        <input type="file" id="file-input" accept="image/png, image/jpeg" class="hidden">
+                    </div>
+                </div>
+
+                <div id="editor-view" class="hidden">
+                    <div class="processor-area">
+                        <div class="previews">
+                            <div class="preview-box"><h4>Vector Preview</h4><div id="svg-preview"></div></div>
+                        </div>
+                        <div class="controls">
+                            <h3>Tracing Options</h3>
+                            <div class="control-group">
+                                <label for="colors-slider">Number of Colors: <span id="colors-value">8</span></label>
+                                <input type="range" id="colors-slider" min="2" max="32" value="8" step="1">
+                            </div>
+                             <div class="control-group">
+                                <label for="blur-slider">Blur / Smoothing: <span id="blur-value">1</span></label>
+                                <input type="range" id="blur-slider" min="0" max="5" value="1" step="1">
+                            </div>
+                            <button id="retrace-btn" class="btn"><i class="fas fa-sync-alt"></i> Update Vector</button>
+                            <div id="download-section" class="control-group hidden" style="margin-top: 1rem;">
+                                <a href="#" id="download-btn" class="btn download-button" download><i class="fas fa-download"></i> Download SVG</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div class="ad-container">Your Ad Content Here</div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms & Conditions</a><a href="mailto:partofcosmmos@gmail.com">Send Feedback</a></div>
+        <p>© 2024 Cosmos Tools. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const uploadView = document.getElementById('upload-view'), editorView = document.getElementById('editor-view');
+        const dropZone = document.getElementById('drop-zone'), fileInput = document.getElementById('file-input');
+        const svgPreview = document.getElementById('svg-preview');
+        // Controls
+        const colorsSlider = document.getElementById('colors-slider'), colorsValue = document.getElementById('colors-value');
+        const blurSlider = document.getElementById('blur-slider'), blurValue = document.getElementById('blur-value');
+        const retraceBtn = document.getElementById('retrace-btn'), downloadSection = document.getElementById('download-section'), downloadBtn = document.getElementById('download-btn');
+        
+        let originalFile = null, originalFileDataUrl = null, currentSvgString = '';
+
+        // --- Event Listeners ---
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        dropZone.addEventListener('dragover', (e) => e.preventDefault());
+        dropZone.addEventListener('drop', (e) => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); });
+
+        colorsSlider.addEventListener('input', () => { colorsValue.textContent = colorsSlider.value; });
+        blurSlider.addEventListener('input', () => { blurValue.textContent = blurSlider.value; });
+        retraceBtn.addEventListener('click', () => traceImage());
+
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) return;
+            originalFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalFileDataUrl = e.target.result;
+                uploadView.classList.add('hidden');
+                editorView.classList.remove('hidden');
+                traceImage();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function traceImage() {
+            if (!originalFileDataUrl) return;
+            
+            setLoading(true, retraceBtn, 'Updating...');
+            
+            // Configuration for the tracer
+            const options = {
+                numberofcolors: parseInt(colorsSlider.value, 10),
+                blurradius: parseInt(blurSlider.value, 10),
+                colorsampling: 2,
+                pathomit: 8,
+                ltres: 1,
+                qtres: 1,
+            };
+
+            ImageTracer.imageToSVG(
+                originalFileDataUrl,
+                function(svgstr) {
+                    currentSvgString = svgstr;
+                    svgPreview.innerHTML = svgstr;
+                    setupDownload();
+                    setLoading(false, retraceBtn, '<i class="fas fa-sync-alt"></i> Update Vector');
+                },
+                options
+            );
+        }
+
+        function setupDownload() {
+            const dataUrl = 'data:image/svg+xml;base64,' + btoa(currentSvgString);
+            downloadBtn.href = dataUrl;
+            downloadBtn.download = `vectorized-${originalFile.name}.svg`;
+            downloadSection.classList.remove('hidden');
+        }
+
+        function setLoading(isLoading, btn, loadingText) {
+            btn.disabled = isLoading;
+            if (isLoading) {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> ${loadingText}`;
+                btn.dataset.originalHtml = originalHtml;
+            } else {
+                 btn.innerHTML = btn.dataset.originalHtml || '<i class="fas fa-sync-alt"></i> Update Vector';
+            }
+        }
+    </script>
+</body>
+</html>
