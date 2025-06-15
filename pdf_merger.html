@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Same header styles as index.html -->
+  <title>PDF Merger | Cosmos Tools</title>
+  <style>
+    /* Same base styles as index.html */
+    .drop-zone {
+      border: 2px dashed var(--gray);
+      border-radius: var(--radius);
+      padding: 3rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .drop-zone:hover {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+    }
+    .file-list {
+      margin: 1.5rem 0;
+    }
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem;
+      border-bottom: 1px solid #eee;
+    }
+    .file-item:last-child {
+      border-bottom: none;
+    }
+    .file-remove {
+      color: var(--danger);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PDF Merger</h1>
+    <p>Combine multiple PDF files into one document</p>
+  </header>
+
+  <div class="container">
+    <div class="tool-card">
+      <h2>Merge PDF Files</h2>
+      <div class="drop-zone" id="drop-zone">
+        <i class="fas fa-file-pdf" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+        <p>Drag & drop PDF files here or click to browse</p>
+        <input type="file" id="file-input" accept=".pdf" multiple style="display: none;">
+      </div>
+
+      <div class="file-list" id="file-list">
+        <!-- Files will appear here -->
+      </div>
+
+      <div class="form-group">
+        <label for="output-name">Output filename:</label>
+        <input type="text" id="output-name" class="tool-card" placeholder="merged-document.pdf" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: var(--radius);">
+      </div>
+
+      <button class="btn" id="merge-btn">Merge PDFs</button>
+    </div>
+
+    <div class="instructions">
+      <h3>PDF Merger Instructions:</h3>
+      <ol>
+        <li>Add PDF files by dragging or browsing</li>
+        <li>Reorder files by dragging (if needed)</li>
+        <li>Set output filename (optional)</li>
+        <li>Click "Merge PDFs" to combine files</li>
+        <li>Download your merged PDF document</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="floating-ai" onclick="window.location.href='ai_assistant.html'">
+    <i class="fas fa-robot"></i>
+  </div>
+
+  <script>
+    // PDF merger functionality would go here
+    document.getElementById('drop-zone').addEventListener('click', function() {
+      document.getElementById('file-input').click();
+    });
+
+    document.getElementById('merge-btn').addEventListener('click', function() {
+      alert('In a real implementation, this would merge the PDFs. For now, it just shows this message.');
+    });
+  </script>
+</body>
+</html>
