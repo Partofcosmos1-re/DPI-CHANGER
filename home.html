@@ -2,85 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Part of Cosmos Tools - Premium Online Utilities</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Part of Cosmos - All-in-One Online Tools</title>
+  <meta name="description" content="A complete suite of free online tools including PDF merger, image converters, AI enhancers, video editors, and more. Boost your productivity with Part of Cosmos.">
+  <meta name="keywords" content="online tools, pdf merger, dpi changer, image compressor, ai enhancer, video editor, free tools">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6141344956835421"
+     crossorigin="anonymous"></script>
   <style>
-    :root {
-      --primary: #6366f1;
-      --primary-dark: #4f46e5;
-      --dark: #1e293b;
-      --light: #f8fafc;
-      --gray: #94a3b8;
-      --gray-dark: #64748b;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --radius: 12px;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    * {
+    /* Modern CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
+    }
+    
+    /* Variable-based Theming */
+    :root {
+      --primary-color: #4f46e5;
+      --primary-hover: #4338ca;
+      --secondary-color: #10b981;
+      --bg-light: #f8fafc;
+      --bg-dark: #1e293b;
+      --text-light: #f8fafc;
+      --text-dark: #0f172a;
+      --border-color: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      --radius: 12px;
+      --transition: all 0.3s ease-in-out;
     }
 
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background-color: #f1f5f9;
-      color: var(--dark);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
       line-height: 1.6;
     }
 
-    .gradient-bg {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    .container {
+      width: 90%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2rem 0;
     }
 
-    header {
-      padding: 2rem 1rem;
-      color: white;
+    /* Header */
+    .main-header {
+      padding: 4rem 1rem;
       text-align: center;
-      position: relative;
-      overflow: hidden;
+      background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+      color: var(--text-light);
+      border-bottom-left-radius: var(--radius);
+      border-bottom-right-radius: var(--radius);
     }
-
-    header::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.8), rgba(255,255,255,0.3));
-    }
-
-    h1 {
-      font-size: 2.5rem;
+    .main-header h1 {
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
       font-weight: 800;
       margin-bottom: 0.5rem;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
-
-    .subtitle {
-      font-size: 1.1rem;
-      opacity: 0.9;
+    .main-header p {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
       max-width: 700px;
       margin: 0 auto;
+      opacity: 0.9;
     }
 
-    .container {
-      padding: 2rem 1rem;
-      max-width: 1200px;
-      margin: 0 auto;
+    /* Section Titles */
+    .section-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: var(--text-dark);
     }
 
+    /* Tool Grid */
     .tool-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 1.5rem;
-      margin-bottom: 3rem;
     }
 
     .tool-card {
@@ -89,331 +91,345 @@
       box-shadow: var(--shadow);
       overflow: hidden;
       transition: var(--transition);
-      position: relative;
-    }
-
-    .tool-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-
-    .tool-icon {
-      height: 120px;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
+    }
+    .tool-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+    }
+    .tool-card .tool-icon {
+      font-size: 2.5rem;
+      padding: 2rem;
+      text-align: center;
       background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
-      color: var(--primary-dark);
-      font-size: 3rem;
+      color: var(--primary-color);
     }
-
-    .tool-content {
+    .tool-card .tool-content {
       padding: 1.5rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
     }
-
     .tool-card h3 {
       font-size: 1.25rem;
+      font-weight: 600;
       margin-bottom: 0.5rem;
-      color: var(--dark);
     }
-
     .tool-card p {
-      color: var(--gray-dark);
+      color: #475569;
       font-size: 0.9rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
     }
-
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-block;
       padding: 0.75rem 1.5rem;
       border-radius: var(--radius);
       font-weight: 600;
+      text-align: center;
       text-decoration: none;
       transition: var(--transition);
       cursor: pointer;
       border: none;
-    }
-
-    .btn-primary {
-      background-color: var(--primary);
+      background-color: var(--primary-color);
       color: white;
     }
-
-    .btn-primary:hover {
-      background-color: var(--primary-dark);
+    .btn:hover {
+      background-color: var(--primary-hover);
       transform: translateY(-2px);
     }
 
-    .btn-block {
-      display: flex;
-      width: 100%;
-    }
-
-    .ai-assistant {
+    /* AI Assistant Section */
+    .ai-section {
+      margin-top: 4rem;
       background: white;
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-lg);
       padding: 2rem;
-      margin-top: 3rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .ai-assistant::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 100%;
-      background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
-    }
-
-    .ai-header {
       display: flex;
       align-items: center;
-      margin-bottom: 1.5rem;
+      gap: 2rem;
+      overflow: hidden;
+      position: relative;
     }
-
-    .ai-icon {
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+     .ai-section .ai-icon {
+      font-size: 3rem;
+      color: var(--primary-color);
+      background-color: #e0e7ff;
+      min-width: 80px;
+      height: 80px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-size: 1.5rem;
-      margin-right: 1rem;
-      flex-shrink: 0;
     }
-
-    .ai-content h2 {
-      font-size: 1.5rem;
+    .ai-section h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
       margin-bottom: 0.5rem;
     }
-
-    .ai-content p {
-      color: var(--gray-dark);
-      margin-bottom: 1.5rem;
+    .ai-section p {
+      margin-bottom: 1rem;
+      color: #475569;
     }
 
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-
-    .feature {
-      background: #f8fafc;
-      padding: 1rem;
+    /* Ad Container */
+    .ad-container {
+      width: 100%;
+      margin: 3rem auto;
+      text-align: center;
+      min-height: 90px;
+      background-color: #f1f5f9;
       border-radius: var(--radius);
       display: flex;
+      justify-content: center;
       align-items: center;
-    }
-
-    .feature i {
-      color: var(--primary);
-      margin-right: 0.75rem;
-      font-size: 1.25rem;
-    }
-
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 2rem;
-      }
-      
-      .tool-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .ai-header {
-        flex-direction: column;
-        text-align: center;
-      }
-      
-      .ai-icon {
-        margin-right: 0;
-        margin-bottom: 1rem;
-      }
+      padding: 1rem;
     }
 
     /* Floating AI button */
     .floating-ai {
       position: fixed;
-      bottom: 2rem;
-      right: 2rem;
+      bottom: 1.5rem;
+      right: 1.5rem;
       width: 60px;
       height: 60px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      background: linear-gradient(135deg, var(--primary-color), #7c3aed);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
       font-size: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-lg);
       cursor: pointer;
-      z-index: 100;
+      z-index: 1000;
       transition: var(--transition);
     }
-
     .floating-ai:hover {
-      transform: scale(1.1);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      transform: scale(1.1) rotate(15deg);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid var(--border-color);
+      color: #64748b;
+    }
+    
+    @media (max-width: 768px) {
+        .ai-section {
+            flex-direction: column;
+            text-align: center;
+        }
     }
   </style>
 </head>
 <body>
-  <header class="gradient-bg">
-    <h1>Cosmos Tools</h1>
-    <p class="subtitle">Premium online utilities to enhance your productivity and creativity</p>
+
+  <header class="main-header">
+    <h1>Part of Cosmos</h1>
+    <p>Your complete suite of powerful, free, and easy-to-use online tools.</p>
   </header>
 
-  <div class="container">
+  <main class="container">
+    
+    <div class="ad-container">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-6141344956835421"
+           data-ad-slot="YOUR_AD_SLOT_ID_1"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <h2 class="section-title">Our Suite of Tools</h2>
     <div class="tool-grid">
+      
+      <!-- Image Tools -->
       <div class="tool-card">
-        <div class="tool-icon">
-          <i class="fas fa-mouse-pointer"></i>
-        </div>
+        <div class="tool-icon"><i class="fas fa-ruler-combined"></i></div>
         <div class="tool-content">
           <h3>DPI Changer</h3>
-          <p>Adjust your mouse sensitivity for optimal control in games and applications</p>
-          <a href="index.html" class="btn btn-primary btn-block">Open Tool</a>
+          <p>Instantly change the DPI of your images for web or print.</p>
+          <a href="index.html" class="btn">Open Tool</a>
         </div>
       </div>
-
       <div class="tool-card">
-        <div class="tool-icon">
-          <i class="fas fa-file-pdf"></i>
-        </div>
+        <div class="tool-icon"><i class="fas fa-compress-arrows-alt"></i></div>
         <div class="tool-content">
-          <h3>PDF Merger</h3>
-          <p>Combine multiple PDF files into a single document with ease</p>
-          <a href="pdf-merger.html" class="btn btn-primary btn-block">Open Tool</a>
+          <h3>Image Compressor</h3>
+          <p>Reduce image file size without significant quality loss.</p>
+          <a href="image-compressor.html" class="btn">Open Tool</a>
         </div>
       </div>
-
       <div class="tool-card">
-        <div class="tool-icon">
-          <i class="fas fa-file-word"></i>
-        </div>
+        <div class="tool-icon"><i class="fas fa-object-ungroup"></i></div>
         <div class="tool-content">
-          <h3>Document Merger</h3>
-          <p>Merge Word, Excel, and other document formats seamlessly</p>
-          <a href="doc-merger.html" class="btn btn-primary btn-block">Open Tool</a>
+          <h3>Image Vectorizer</h3>
+          <p>Convert raster images (JPG, PNG) into scalable vector graphics (SVG).</p>
+          <a href="image-vectorizer.html" class="btn">Open Tool</a>
         </div>
       </div>
-
       <div class="tool-card">
-        <div class="tool-icon">
-          <i class="fas fa-images"></i>
-        </div>
+        <div class="tool-icon"><i class="fas fa-th"></i></div>
         <div class="tool-content">
           <h3>Photo Collage Maker</h3>
-          <p>Create beautiful collages from your photos with customizable layouts</p>
-          <a href="photo-collage.html" class="btn btn-primary btn-block">Open Tool</a>
+          <p>Create stunning photo collages with easy-to-use templates.</p>
+          <a href="photo-collage.html" class="btn">Open Tool</a>
         </div>
       </div>
-
-      <div class="tool-card">
-        <div class="tool-icon">
-          <i class="fas fa-compress-alt"></i>
-        </div>
+       <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-expand-arrows-alt"></i></div>
         <div class="tool-content">
-          <h3>Photo Resolution Reducer</h3>
-          <p>Optimize your images for web by reducing file size without losing quality</p>
-          <a href="resolution-reducer.html" class="btn btn-primary btn-block">Open Tool</a>
+          <h3>Resolution Reducer</h3>
+          <p>Easily downscale the resolution of your photos and images.</p>
+          <a href="resolution-reducer.html" class="btn">Open Tool</a>
         </div>
       </div>
 
+      <!-- AI Tools -->
       <div class="tool-card">
-        <div class="tool-icon">
-          <i class="fas fa-expand-alt"></i>
-        </div>
+        <div class="tool-icon"><i class="fas fa-magic"></i></div>
         <div class="tool-content">
           <h3>AI Photo Enhancer</h3>
-          <p>Enhance low-resolution images using advanced AI algorithms</p>
-          <a href="ai-photo-enhancer.html" class="btn btn-primary btn-block">Open Tool</a>
+          <p>Upscale and enhance image quality using artificial intelligence.</p>
+          <a href="ai-photo-enhancer.html" class="btn">Open Tool</a>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-user-ninja"></i></div>
+        <div class="tool-content">
+          <h3>AI Background Remover</h3>
+          <p>Automatically remove the background from any image with one click.</p>
+          <a href="ai-background-remover.html" class="btn">Open Tool</a>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-volume-up"></i></div>
+        <div class="tool-content">
+          <h3>AI Audio Enhancer</h3>
+          <p>Clean up noise and improve the clarity of your audio recordings.</p>
+          <a href="ai-audio-enhancer.html" class="btn">Open Tool</a>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-microphone-alt"></i></div>
+        <div class="tool-content">
+          <h3>AI Video Dubber</h3>
+          <p>Dub videos into different languages using AI-powered voice synthesis.</p>
+          <a href="ai-video-dubber.html" class="btn">Open Tool</a>
         </div>
       </div>
 
+      <!-- PDF & Document Tools -->
       <div class="tool-card">
-        <div class="tool-icon">
-          <i class="fas fa-file-archive"></i>
+        <div class="tool-icon"><i class="fas fa-file-pdf"></i></div>
+        <div class="tool-content">
+          <h3>PDF Merger</h3>
+          <p>Combine multiple PDF files into a single, organized document.</p>
+          <a href="pdf-merger.html" class="btn">Open Tool</a>
         </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-file-archive"></i></div>
         <div class="tool-content">
           <h3>PDF Compressor</h3>
-          <p>Reduce PDF file size while maintaining quality for easy sharing</p>
-          <a href="pdf-compressor.html" class="btn btn-primary btn-block">Open Tool</a>
+          <p>Reduce the size of your PDF files for easy sharing and storage.</p>
+          <a href="pdf-compressor.html" class="btn">Open Tool</a>
         </div>
       </div>
-
-      <div class="tool-card">
-        <div class="tool-icon">
-          <i class="fas fa-file-contract"></i>
-        </div>
+       <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-file-word"></i></div>
         <div class="tool-content">
-          <h3>Document Compressor</h3>
-          <p>Compress Word, Excel and other documents to save space</p>
-          <a href="doc-compressor.html" class="btn btn-primary btn-block">Open Tool</a>
+          <h3>Doc Merger</h3>
+          <p>Merge various document files (DOCX, etc.) into one document.</p>
+          <a href="doc-merger.html" class="btn">Open Tool</a>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-file-zipper"></i></div>
+        <div class="tool-content">
+          <h3>Doc Compressor</h3>
+          <p>Compress your documents to save space and speed up transfers.</p>
+          <a href="doc-compressor.html" class="btn">Open Tool</a>
+        </div>
+      </div>
+
+      <!-- Video Tools -->
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-cut"></i></div>
+        <div class="tool-content">
+          <h3>Video Cutter</h3>
+          <p>Trim and cut your videos to get the perfect clip.</p>
+          <a href="video-cutter.html" class="btn">Open Tool</a>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-crop-alt"></i></div>
+        <div class="tool-content">
+          <h3>Video Cropper</h3>
+          <p>Crop your videos to fit different aspect ratios and formats.</p>
+          <a href="video-cropper.html" class="btn">Open Tool</a>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon"><i class="fas fa-photo-video"></i></div>
+        <div class="tool-content">
+          <h3>Video to GIF</h3>
+          <p>Convert segments of your videos into high-quality animated GIFs.</p>
+          <a href="video-to-gif.html" class="btn">Open Tool</a>
         </div>
       </div>
     </div>
 
-    <div class="ai-assistant">
-      <div class="ai-header">
-        <div class="ai-icon">
-          <i class="fas fa-robot"></i>
-        </div>
+    <!-- AI Assistant Section -->
+    <div class="ai-section">
+        <div class="ai-icon"><i class="fas fa-robot"></i></div>
         <div class="ai-content">
-          <h2>AI Assistant</h2>
-          <p>Get instant help with any tool or ask for creative suggestions. Our AI assistant is available 24/7 to guide you.</p>
-          <a href="ai_assistant.html" class="btn btn-primary">
-            <i class="fas fa-comments" style="margin-right: 8px;"></i> Chat with Assistant
-          </a>
+            <h2>Meet Your AI Assistant</h2>
+            <p>Need help finding the right tool or figuring out a feature? Our AI assistant is here to guide you 24/7.</p>
+            <a href="ai_assistant.html" class="btn">Chat Now</a>
         </div>
-      </div>
-
-      <div class="features">
-        <div class="feature">
-          <i class="fas fa-lightbulb"></i>
-          <span>Tool recommendations</span>
-        </div>
-        <div class="feature">
-          <i class="fas fa-question-circle"></i>
-          <span>Step-by-step guides</span>
-        </div>
-        <div class="feature">
-          <i class="fas fa-magic"></i>
-          <span>Creative suggestions</span>
-        </div>
-        <div class="feature">
-          <i class="fas fa-clock"></i>
-          <span>24/7 availability</span>
-        </div>
-      </div>
     </div>
-  </div>
+
+    <!-- Bottom Ad Container -->
+    <div class="ad-container">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-6141344956835421"
+           data-ad-slot="YOUR_AD_SLOT_ID_2"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+  </main>
 
   <!-- Floating AI Button -->
-  <div class="floating-ai" onclick="window.location.href='ai_assistant.html'">
+  <a href="ai_assistant.html" class="floating-ai" aria-label="Chat with AI Assistant">
     <i class="fas fa-robot"></i>
-  </div>
+  </a>
+
+  <footer>
+    <p>© <span id="currentYear"></span> Part of Cosmos. All Rights Reserved.</p>
+  </footer>
 
   <script>
-    // You can add interactive features here
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // Fade-in animation for tool cards on scroll
     document.addEventListener('DOMContentLoaded', function() {
-      // Example: Add animation to tool cards when they come into view
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             entry.target.style.opacity = 1;
             entry.target.style.transform = 'translateY(0)';
+            observer.unobserve(entry.target);
           }
         });
       }, { threshold: 0.1 });
@@ -421,10 +437,11 @@
       document.querySelectorAll('.tool-card').forEach(card => {
         card.style.opacity = 0;
         card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        card.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
         observer.observe(card);
       });
     });
   </script>
+
 </body>
 </html>
