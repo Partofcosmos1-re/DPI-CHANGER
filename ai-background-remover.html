@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Background Remover | Cosmos Tools</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.2.1/dist/index.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        :root {
+            --primary-color: #6a62d5; --primary-hover: #5850b7; --secondary-color: #f5f5f5;
+            --text-color: #333; --bg-color: #ffffff; --shadow-color: rgba(0, 0, 0, 0.08);
+            --border-color: #e2e8f0; --success-color: #28a745;
+        }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--secondary-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; }
+        main { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 2rem; }
+        .container { max-width: 900px; width: 100%; }
+        .tool-card { background: var(--bg-color); padding: 2rem; border-radius: 16px; box-shadow: 0 8px 30px var(--shadow-color); }
+        .tool-header { text-align: center; margin-bottom: 2rem; }
+        .tool-header h1 { font-size: 2.5rem; color: var(--primary-color); margin: 0; }
+        .drop-zone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary-color); background: #f7f7ff; }
+
+        .image-display { width: 100%; max-width: 500px; margin: 1rem auto; border-radius: 8px; border: 1px solid var(--border-color); background: repeating-conic-gradient(var(--secondary-color) 0% 25%, #fff 0% 50%) 50% / 20px 20px;}
+        .image-display img { width: 100%; display: block; border-radius: 8px; }
+
+        .controls { padding: 1rem; border-top: 1px solid var(--border-color); margin-top: 1rem;}
+        .controls h3 { margin-top: 0; text-align: center; }
+        .bg-options { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+        .bg-options button, .bg-options label { padding: 0.5rem 1rem; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; cursor: pointer; }
+        .bg-options button:hover, .bg-options label:hover { border-color: var(--primary-color); }
+
+        .btn { display: flex; align-items: center; justify-content: center; gap: 0.75rem; width: 100%; background-color: var(--success-color); color: white; padding: 1rem; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; margin-top: 1.5rem; }
+        .home-btn { display: inline-block; margin-bottom: 1.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        .home-btn i { margin-right: 0.5rem; }
+        .hidden { display: none; }
+        .status-box { text-align: center; padding: 2rem; border: 1px solid var(--border-color); border-radius: 8px; margin-top: 1rem; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .ad-container { width: 100%; max-width: 900px; margin: 2rem auto; min-height: 90px; background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; color: #94a3b8; border: 1px solid var(--border-color); border-radius: 8px; }
+        footer { width: 100%; background: var(--bg-color); text-align: center; padding: 2rem; margin-top: auto; border-top: 1px solid var(--border-color); }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; justify-content: center; margin-bottom: 1rem; }
+        .footer-links a { color: var(--text-color); text-decoration: none; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--primary-color); }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <a href="home.html" class="home-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            <div class="tool-card">
+                <div id="upload-view">
+                    <div class="tool-header"><h1>AI Background Remover</h1><p>Automatically detect the subject and remove the background from any image.</p></div>
+                    <div class="drop-zone" id="drop-zone">
+                        <i class="fas fa-file-image" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+                        <p><strong>Drag & drop an image here</strong> or click to browse</p>
+                        <input type="file" id="file-input" accept="image/png, image/jpeg" class="hidden">
+                    </div>
+                </div>
+
+                <div id="status-view" class="hidden">
+                    <div class="status-box">
+                        <div class="spinner"></div>
+                        <p id="status-text">Loading AI Model (this may take a moment on first visit)...</p>
+                    </div>
+                </div>
+                
+                <div id="results-view" class="hidden">
+                    <div class="image-display"><img id="result-img" src="" alt="Image with background removed"></div>
+                    <div class="controls">
+                        <h3>Background Style</h3>
+                        <div class="bg-options">
+                            <button id="bg-transparent">Transparent</button>
+                            <label><input type="color" id="bg-color" value="#FFFFFF" style="width:0;height:0;padding:0;border:0;opacity:0;">Color</label>
+                            <label><input type="file" id="bg-image-input" accept="image/*" class="hidden">Image</label>
+                        </div>
+                    </div>
+                     <a href="#" id="download-btn" class="btn" download><i class="fas fa-download"></i> Download Image</a>
+                </div>
+
+            </div>
+            <div class="ad-container">Your Ad Content Here</div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms & Conditions</a><a href="mailto:partofcosmmos@gmail.com">Send Feedback</a></div>
+        <p>© 2024 Cosmos Tools. All Rights Reserved.</p>
+    </footer>
+
+    <script type="module">
+        import removeBackground from 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.2.1/dist/index.js';
+        
+        // DOM Elements
+        const uploadView = document.getElementById('upload-view'), statusView = document.getElementById('status-view');
+        const resultsView = document.getElementById('results-view'), statusText = document.getElementById('status-text');
+        const dropZone = document.getElementById('drop-zone'), fileInput = document.getElementById('file-input');
+        const resultImg = document.getElementById('result-img'), downloadBtn = document.getElementById('download-btn');
+        const bgTransparentBtn = document.getElementById('bg-transparent');
+        const bgColorInput = document.getElementById('bg-color');
+        const bgImageInput = document.getElementById('bg-image-input');
+
+        let originalFile = null, processedBlob = null;
+        let lastBg = { type: 'transparent' };
+
+        // --- Event Listeners ---
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        dropZone.addEventListener('dragover', (e) => e.preventDefault());
+        dropZone.addEventListener('drop', (e) => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); });
+        
+        // Background Control Listeners
+        bgTransparentBtn.addEventListener('click', () => updateBackground('transparent'));
+        bgColorInput.addEventListener('input', () => updateBackground('color', bgColorInput.value));
+        bgImageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (re) => updateBackground('image', re.target.result);
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) return;
+            originalFile = file;
+            uploadView.classList.add('hidden');
+            resultsView.classList.add('hidden');
+            statusView.classList.remove('hidden');
+
+            try {
+                statusText.textContent = "Processing image with AI...";
+                processedBlob = await removeBackground(file, {
+                    onProgress: (key, current, total) => {
+                        const [action, model] = key.split(':');
+                        const progress = (current/total*100).toFixed(1);
+                        if(action === 'compute') statusText.textContent = `Analyzing image... ${progress}%`;
+                        else statusText.textContent = `Downloading ${model} model... ${progress}%`;
+                    }
+                });
+                const url = URL.createObjectURL(processedBlob);
+                resultImg.src = url;
+                downloadBtn.href = url;
+                downloadBtn.download = `removed-bg-${originalFile.name}`;
+                statusView.classList.add('hidden');
+                resultsView.classList.remove('hidden');
+            } catch (error) {
+                console.error("Background removal error:", error);
+                alert("Failed to process image. It may be too large or in an unsupported format.");
+                statusView.classList.add('hidden');
+                uploadView.classList.remove('hidden');
+            }
+        }
+        
+        async function updateBackground(type, value) {
+            lastBg = { type, value };
+            if (!processedBlob) return;
+
+            const foregroundUrl = URL.createObjectURL(processedBlob);
+            const foregroundImg = new Image();
+            foregroundImg.src = foregroundUrl;
+            await new Promise(resolve => foregroundImg.onload = resolve);
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = foregroundImg.width;
+            canvas.height = foregroundImg.height;
+            const ctx = canvas.getContext('2d');
+            
+            if (type === 'color') {
+                ctx.fillStyle = value;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else if (type === 'image' && value) {
+                const backgroundImg = new Image();
+                backgroundImg.src = value;
+                await new Promise(resolve => backgroundImg.onload = resolve);
+                ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+            }
+            
+            ctx.drawImage(foregroundImg, 0, 0);
+
+            const newBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            const newUrl = URL.createObjectURL(newBlob);
+            resultImg.src = newUrl;
+            downloadBtn.href = newUrl;
+        }
+    </script>
+</body>
+</html>
