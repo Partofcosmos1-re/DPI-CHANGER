@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Photo Enhancer | Cosmos Tools</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Pica.js: For high-quality image resizing -->
+    <script src="https://cdn.jsdelivr.net/npm/pica@9.0.1/dist/pica.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        :root {
+            --primary-color: #6a62d5; --primary-hover: #5850b7; --secondary-color: #f5f5f5;
+            --text-color: #333; --bg-color: #ffffff; --shadow-color: rgba(0, 0, 0, 0.08);
+            --border-color: #e2e8f0; --success-color: #28a745;
+        }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--secondary-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; }
+        main { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 2rem; }
+        .container { max-width: 1100px; width: 100%; }
+        .tool-card { background: var(--bg-color); padding: 2rem; border-radius: 16px; box-shadow: 0 8px 30px var(--shadow-color); }
+        .tool-header { text-align: center; margin-bottom: 2rem; }
+        .tool-header h1 { font-size: 2.5rem; color: var(--primary-color); margin: 0; }
+        .drop-zone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary-color); background: #f7f7ff; }
+        
+        .processor-area { display: grid; grid-template-columns: 1fr 340px; gap: 2rem; }
+        @media (max-width: 900px) { .processor-area { grid-template-columns: 1fr; } }
+        
+        .previews { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .preview-box { border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; text-align: center; }
+        .preview-box img { max-width: 100%; height: auto; border-radius: 4px; background-color: var(--secondary-color); }
+        .preview-box h4 { margin: 0 0 0.5rem 0; }
+        .info { font-size: 0.85rem; }
+        
+        .controls h3 { margin-top: 0; text-align: center; color: var(--primary-color); }
+        .control-group { margin-bottom: 1.5rem; }
+        .control-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        input[type="range"] { width: 100%; }
+        .btn { display: flex; align-items: center; justify-content: center; gap: 0.75rem; width: 100%; background-color: var(--primary-color); color: white; padding: 1rem; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn:hover:not(:disabled) { background-color: var(--primary-hover); }
+        .btn:disabled { background-color: #a3a3d5; cursor: not-allowed; }
+        .download-button { background-color: var(--success-color); }
+        .download-button:hover { background-color: #218838; }
+        
+        .home-btn { display: inline-block; margin-bottom: 1.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        .home-btn i { margin-right: 0.5rem; }
+        .hidden { display: none; }
+        .spinner { width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .ad-container { width: 100%; max-width: 1100px; margin: 2rem auto; min-height: 90px; background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; color: #94a3b8; border: 1px solid var(--border-color); border-radius: 8px; }
+        footer { width: 100%; background: var(--bg-color); text-align: center; padding: 2rem; margin-top: auto; border-top: 1px solid var(--border-color); }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; justify-content: center; margin-bottom: 1rem; }
+        .footer-links a { color: var(--text-color); text-decoration: none; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--primary-color); }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <a href="home.html" class="home-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            <div class="tool-card">
+                <div id="upload-view">
+                    <div class="tool-header"><h1>AI Photo Enhancer</h1><p>Upscale and enhance your images with advanced algorithms.</p></div>
+                    <div class="drop-zone" id="drop-zone">
+                        <i class="fas fa-file-image" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+                        <p><strong>Drag & drop an image here</strong> or click to browse</p>
+                        <input type="file" id="file-input" accept="image/png, image/jpeg" class="hidden">
+                    </div>
+                </div>
+
+                <div id="editor-view" class="hidden">
+                     <div class="processor-area">
+                        <div class="previews">
+                            <div class="preview-box"><h4>Before</h4><img id="original-preview" alt="Original Image"><div id="original-info" class="info"></div></div>
+                            <div class="preview-box"><h4>After</h4><img id="processed-preview" alt="Processed Image"><div id="processed-info" class="info"></div></div>
+                        </div>
+                        <div class="controls">
+                            <h3>Enhancement Controls</h3>
+                            <div class="control-group">
+                                <label>Upscale Factor</label>
+                                <div class="btn-group">
+                                    <input type="radio" name="scale" id="scale1x" value="1" checked><label for="scale1x"> 1x</label>
+                                    <input type="radio" name="scale" id="scale2x" value="2"><label for="scale2x"> 2x</label>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label for="clarity-slider">Clarity (Contrast): <span id="clarity-value">10</span></label>
+                                <input type="range" id="clarity-slider" min="0" max="100" value="10">
+                            </div>
+                            <div class="control-group">
+                                <label for="sharpness-slider">Sharpness: <span id="sharpness-value">20</span></label>
+                                <input type="range" id="sharpness-slider" min="0" max="100" value="20">
+                            </div>
+                            <button id="process-btn" class="btn"><i class="fas fa-magic"></i> Enhance Image</button>
+                            <div id="download-section" class="control-group hidden" style="margin-top: 1rem;">
+                                <a href="#" id="download-btn" class="btn download-button" download><i class="fas fa-download"></i> Download Enhanced Image</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ad-container">Your Ad Content Here</div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms & Conditions</a>
+            <a href="mailto:partofcosmmos@gmail.com">Send Feedback</a>
+        </div>
+        <p>© 2024 Cosmos Tools. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const picaInstance = pica();
+        // DOM Elements
+        const uploadView = document.getElementById('upload-view'), editorView = document.getElementById('editor-view');
+        const dropZone = document.getElementById('drop-zone'), fileInput = document.getElementById('file-input');
+        const originalPreview = document.getElementById('original-preview'), processedPreview = document.getElementById('processed-preview');
+        const originalInfo = document.getElementById('original-info'), processedInfo = document.getElementById('processed-info');
+        // Controls
+        const claritySlider = document.getElementById('clarity-slider'), clarityValue = document.getElementById('clarity-value');
+        const sharpnessSlider = document.getElementById('sharpness-slider'), sharpnessValue = document.getElementById('sharpness-value');
+        const processBtn = document.getElementById('process-btn'), downloadSection = document.getElementById('download-section'), downloadBtn = document.getElementById('download-btn');
+        
+        let originalFile = null, originalImageElement = new Image();
+
+        // Event Listeners
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); });
+        
+        claritySlider.addEventListener('input', () => { clarityValue.textContent = claritySlider.value; });
+        sharpnessSlider.addEventListener('input', () => { sharpnessValue.textContent = sharpnessSlider.value; });
+        processBtn.addEventListener('click', processImage);
+
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) return;
+            originalFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalImageElement.src = e.target.result;
+                originalImageElement.onload = () => {
+                    originalPreview.src = originalImageElement.src;
+                    originalInfo.innerHTML = `<p>${originalImageElement.naturalWidth} x ${originalImageElement.naturalHeight}</p>`;
+                    processedPreview.src = '';
+                    processedInfo.innerHTML = '';
+                    downloadSection.classList.add('hidden');
+                    uploadView.classList.add('hidden');
+                    editorView.classList.remove('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function processImage() {
+            setLoading(true);
+            const scaleFactor = document.querySelector('input[name="scale"]:checked').value;
+            const targetWidth = originalImageElement.naturalWidth * scaleFactor;
+            const targetHeight = originalImageElement.naturalHeight * scaleFactor;
+
+            const offscreenCanvas = document.createElement('canvas');
+            offscreenCanvas.width = targetWidth;
+            offscreenCanvas.height = targetHeight;
+            
+            try {
+                // 1. High-quality upscale
+                await picaInstance.resize(originalImageElement, offscreenCanvas, { alpha: true });
+                const ctx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
+
+                // 2. Apply Clarity (S-Curve Contrast)
+                const clarityAmount = parseInt(claritySlider.value) / 100;
+                if (clarityAmount > 0) {
+                    applyContrast(ctx, targetWidth, targetHeight, clarityAmount * 10); // Scale amount for a more visible effect
+                }
+
+                // 3. Apply Sharpening (Unsharp Mask)
+                const sharpnessAmount = parseInt(sharpnessSlider.value) / 100;
+                if (sharpnessAmount > 0) {
+                    applySharpen(ctx, targetWidth, targetHeight, sharpnessAmount);
+                }
+
+                // 4. Generate Blob and show results
+                offscreenCanvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    processedPreview.src = url;
+                    downloadBtn.href = url;
+                    downloadBtn.download = `enhanced-${originalFile.name}`;
+                    processedInfo.innerHTML = `<p>${targetWidth} x ${targetHeight}</p>`;
+                    downloadSection.classList.remove('hidden');
+                    setLoading(false);
+                }, 'image/png', 1.0); // Output as high-quality PNG to preserve details
+
+            } catch (error) {
+                console.error("Processing error:", error);
+                alert("An error occurred during enhancement.");
+                setLoading(false);
+            }
+        }
+        
+        function applyContrast(ctx, width, height, amount) {
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+            const contrast = (amount / 10.0) + 1;  // Convert 0-10 to 1-2
+            const intercept = 128 * (1 - contrast);
+            for(let i=0; i<data.length; i+=4){
+                data[i] = data[i]*contrast + intercept;
+                data[i+1] = data[i+1]*contrast + intercept;
+                data[i+2] = data[i+2]*contrast + intercept;
+            }
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        // Simplified Unsharp Mask implementation
+        function applySharpen(ctx, width, height, amount) {
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = width;
+            tempCanvas.height = height;
+            
+            // Create a blurred version
+            tempCtx.filter = `blur(1px)`;
+            tempCtx.drawImage(ctx.canvas, 0, 0);
+
+            const originalData = ctx.getImageData(0, 0, width, height);
+            const blurredData = tempCtx.getImageData(0, 0, width, height);
+            const od = originalData.data;
+            const bd = blurredData.data;
+
+            for (let i = 0; i < od.length; i += 4) {
+                // Detail = Original - Blurred
+                const r_detail = od[i] - bd[i];
+                const g_detail = od[i+1] - bd[i+1];
+                const b_detail = od[i+2] - bd[i+2];
+                // New = Original + Detail * Amount
+                od[i] = od[i] + r_detail * amount;
+                od[i+1] = od[i+1] + g_detail * amount;
+                od[i+2] = od[i+2] + b_detail * amount;
+            }
+            ctx.putImageData(originalData, 0, 0);
+        }
+
+        function setLoading(isLoading) {
+            processBtn.disabled = isLoading;
+            const icon = processBtn.querySelector('i');
+            if (isLoading) {
+                icon.className = 'spinner';
+            } else {
+                icon.className = 'fas fa-magic';
+            }
+        }
+    </script>
+</body>
+</html>
