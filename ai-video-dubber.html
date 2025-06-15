@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<<head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
@@ -10,10 +10,8 @@
     <title>AI Video Dubber | Cosmos Tools</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Transfomers.js for AI models (Whisper, Translation) -->
+    <!-- Transfomers.js for AI models (Whisper, Translation, TTS) -->
     <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1"></script>
-    
-    <!-- ... the rest of your head section ... -->
     
     <!-- FFmpeg.wasm for video/audio processing -->
     <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
@@ -36,7 +34,7 @@
         .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary-color); background: #f7f7ff; }
         .warning-box { background: #fffbe6; border: 1px solid #ffe58f; padding: 1rem; border-radius: 8px; font-size: 0.9rem; margin-top: 1rem; }
 
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; margin-bottom: 1.5rem; }
+        .controls { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1.5rem; margin-bottom: 1.5rem; }
         .control-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
         select { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; }
 
@@ -78,7 +76,7 @@
                     <div class="drop-zone" id="drop-zone">
                         <i class="fas fa-film" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
                         <p><strong>Drag & drop a video file here</strong> or click to browse</p>
-                        <input type="file" id="file-input" accept="video/mp4" class="hidden">
+                        <input type="file" id="file-input" accept="video/mp4,video/mov,video/webm" class="hidden">
                     </div>
                     <div class="warning-box">
                         <b>Important:</b> This tool runs entirely in your browser. All processing is private and secure. The initial run may be slow as AI models are downloaded. For best results, use videos under 2 minutes.
@@ -91,10 +89,6 @@
                         <div class="control-group">
                             <label for="language-select">Target Language</label>
                             <select id="language-select"></select>
-                        </div>
-                        <div class="control-group">
-                            <label for="voice-select">Voice</label>
-                            <select id="voice-select"></select>
                         </div>
                     </div>
                     <button id="process-btn" class="btn"><i class="fas fa-magic"></i> Start Dubbing</button>
@@ -116,61 +110,66 @@
     </footer>
 
     <script type="module">
-        const { pipeline, RawImage } = window.Transformers;
+        const { pipeline } = window.Transformers;
         const { FFmpeg } = window.FFmpeg;
 
         // --- DOM Elements ---
         const uploadView = document.getElementById('upload-view'), processingView = document.getElementById('processing-view'), resultsView = document.getElementById('results-view');
         const dropZone = document.getElementById('drop-zone'), fileInput = document.getElementById('file-input');
         const videoPreview = document.getElementById('video-preview'), resultPlayer = document.getElementById('result-player');
-        const langSelect = document.getElementById('language-select'), voiceSelect = document.getElementById('voice-select');
+        const langSelect = document.getElementById('language-select');
         const processBtn = document.getElementById('process-btn'), downloadBtn = document.getElementById('download-btn');
         const logContainer = document.getElementById('log-container');
         
         let videoFile = null;
         let ffmpeg = null;
 
+        // --- Mappings ---
+        // Maps simple language codes to the codes required by the NLLB translation model
+        const LANGUAGE_MAP = {
+            "es": "spa_Latn", "fr": "fra_Latn", "de": "deu_Latn", "it": "ita_Latn",
+            "pt": "por_Latn", "hi": "hin_Deva", "ja": "jpn_Jpan", "ko": "kor_Hang",
+            "ru": "rus_Cyrl", "zh": "zho_Hans", "ar": "ara_Arab"
+        };
+        
         // --- Event Listeners ---
         dropZone.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-        dropZone.addEventListener('dragover', (e) => e.preventDefault());
-        dropZone.addEventListener('drop', (e) => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); });
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
+        });
         processBtn.addEventListener('click', runDubbingPipeline);
-        langSelect.addEventListener('change', populateVoices);
         
         // --- Core Functions ---
         
-        // Initialize Speech Synthesis and populate voices
-        let voices = [];
-        function populateVoices() {
-            voices = speechSynthesis.getVoices();
-            const langCode = langSelect.value;
-            voiceSelect.innerHTML = '';
-            voices.filter(voice => voice.lang.startsWith(langCode)).forEach(voice => {
-                const option = document.createElement('option');
-                option.textContent = `${voice.name} (${voice.lang})`;
-                option.value = voice.name;
-                voiceSelect.appendChild(option);
-            });
-        }
-        speechSynthesis.onvoiceschanged = populateVoices;
-
         function populateLanguages() {
              const supportedLangs = [
                 {code: "en", name: "English"}, {code: "es", name: "Spanish"}, {code: "fr", name: "French"},
                 {code: "de", name: "German"}, {code: "it", name: "Italian"}, {code: "pt", name: "Portuguese"},
-                {code: "hi", name: "Hindi"}, {code: "ja", name: "Japanese"}, {code: "ko", name: "Korean"}
+                {code: "hi", name: "Hindi"}, {code: "ja", name: "Japanese"}, {code: "ko", name: "Korean"},
+                {code: "ru", name: "Russian"}, {code: "zh", name: "Chinese"}, {code: "ar", name: "Arabic"}
             ];
             langSelect.innerHTML = '';
+            // Default to spanish
+            const defaultLang = "es"; 
             supportedLangs.forEach(lang => {
                 const option = new Option(lang.name, lang.code);
+                if (lang.code === defaultLang) {
+                    option.selected = true;
+                }
                 langSelect.appendChild(option);
             });
-            populateVoices();
         }
         
         function handleFile(file) {
-            if (!file || !file.type.startsWith('video/')) return;
+            if (!file || !file.type.startsWith('video/')) {
+                alert("Please select a valid video file (MP4, MOV, WebM).");
+                return;
+            }
             videoFile = file;
             videoPreview.src = URL.createObjectURL(file);
             uploadView.classList.add('hidden');
@@ -182,7 +181,7 @@
         function addLog(text, initialStatus) {
             const item = document.createElement('div');
             item.className = 'log-item';
-            const icon = (initialStatus === 'pending') ? 'fas fa-spinner spinner-icon' : 'far fa-circle';
+            const icon = (initialStatus === 'pending' || initialStatus.startsWith('processing')) ? 'fas fa-spinner spinner-icon' : 'far fa-circle';
             item.innerHTML = `<i class="log-icon ${icon}"></i><p class="log-text">${text}</p><span class="log-status">${initialStatus}</span>`;
             logContainer.appendChild(item);
             logContainer.classList.remove('hidden');
@@ -193,7 +192,9 @@
             const statusEl = logItem.querySelector('.log-status');
             const iconEl = logItem.querySelector('.log-icon');
             statusEl.textContent = newStatus;
-            if (newStatus === 'done') {
+            if (newStatus.startsWith('processing')) {
+                iconEl.className = 'log-icon fas fa-spinner spinner-icon';
+            } else if (newStatus === 'done') {
                 statusEl.classList.add('done');
                 iconEl.className = 'log-icon fas fa-check-circle';
             }
@@ -209,28 +210,30 @@
                 extract: addLog('Extracting original audio', 'waiting'),
                 transcribe: addLog('Transcribing speech to text', 'waiting'),
                 translate: addLog('Translating text', 'waiting'),
-                synthesize: addLog('Generating new voice audio', 'waiting'),
+                synthesize: addLog('Generating new voice audio (TTS)', 'waiting'),
                 dub: addLog('Merging new audio with video', 'waiting'),
             };
 
             try {
                 // Step 1: Load FFmpeg
+                updateLog(logs.ffmpeg, 'processing...');
                 if (!ffmpeg) {
                     ffmpeg = new FFmpeg();
                     ffmpeg.on('log', ({ message }) => console.log(message));
+                    // The core URL should ideally match the major version of the main library
                     await ffmpeg.load({ coreURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js' });
                 }
                 updateLog(logs.ffmpeg, 'done');
 
                 // Step 2: Extract audio
                 updateLog(logs.extract, 'processing...');
-                await ffmpeg.writeFile('input.mp4', new Uint8Array(await videoFile.arrayBuffer()));
-                await ffmpeg.exec(['-i', 'input.mp4', '-vn', '-acodec', 'pcm_s16le', '-ar', '16000', '-ac', '1', 'audio.wav']);
+                await ffmpeg.writeFile(videoFile.name, new Uint8Array(await videoFile.arrayBuffer()));
+                await ffmpeg.exec(['-i', videoFile.name, '-vn', '-acodec', 'pcm_s16le', '-ar', '16000', '-ac', '1', 'audio.wav']);
                 const audioData = await ffmpeg.readFile('audio.wav');
                 updateLog(logs.extract, 'done');
                 
                 // Step 3: Transcribe
-                updateLog(logs.transcribe, 'processing... (AI model loading)');
+                updateLog(logs.transcribe, 'processing... (loading AI model)');
                 const transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
                 const transcription = await transcriber(audioData.buffer, {
                     chunk_length_s: 30, stride_length_s: 5,
@@ -244,34 +247,41 @@
                 updateLog(logs.transcribe, 'done');
 
                 // Step 4: Translate
-                updateLog(logs.translate, 'processing... (AI model loading)');
-                const targetLang = langSelect.value;
-                const translator = await pipeline('translation', `Xenova/nllb-200-distilled-600M`);
-                const translation = await translator(transcription.text, {
-                    src_lang: 'eng_Latn', tgt_lang: `${targetLang}_Latn`,
-                    callback_function: (p) => updateLog(logs.translate, 'processing...')
-                });
-                const translatedText = translation[0].translation_text;
+                updateLog(logs.translate, 'processing... (loading AI model)');
+                const targetLangCode = langSelect.value;
+                if (targetLangCode === 'en') {
+                    // Skip translation if target is English
+                     updateLog(logs.translate, 'skipped (target is English)');
+                     window.translatedText = transcription.text;
+                } else {
+                    const translator = await pipeline('translation', 'Xenova/nllb-200-distilled-600M');
+                    const translation = await translator(transcription.text, {
+                        src_lang: 'eng_Latn', tgt_lang: LANGUAGE_MAP[targetLangCode],
+                        callback_function: (p) => {
+                            if (p[0].type === 'progress') {
+                                const percent = (p[0].data.progress).toFixed(1);
+                                updateLog(logs.translate, `processing... ${percent}%`);
+                            }
+                        }
+                    });
+                    window.translatedText = translation[0].translation_text;
+                }
                 updateLog(logs.translate, 'done');
                 
-                // Step 5: Synthesize new audio
-                updateLog(logs.synthesize, 'processing...');
-                const voiceName = voiceSelect.value;
-                const utterance = new SpeechSynthesisUtterance(translatedText);
-                utterance.voice = voices.find(v => v.name === voiceName);
-                utterance.lang = utterance.voice.lang;
-
-                const synthPromise = new Promise(resolve => utterance.onend = resolve);
-                speechSynthesis.speak(utterance);
-                await synthPromise; // NOTE: This step doesn't save to file yet, this is a limitation. For a full tool, you'd record this output.
-                // WORKAROUND: For demo, let's create a silent audio of same estimated duration. A real tool would record this.
-                const estimatedDuration = translatedText.length * 0.1; // Very rough estimate
-                await ffmpeg.exec(['-f', 'lavfi', '-i', 'anullsrc=r=16000:cl=mono', '-t', `${estimatedDuration}`, '-q:a', '9', '-acodec', 'libmp3lame', 'new_audio.mp3']);
-                updateLog(logs.synthesize, 'done'); // Marking done, with known limitation.
+                // Step 5: Synthesize new audio with Text-to-Speech
+                updateLog(logs.synthesize, 'processing... (loading AI model)');
+                const synthesizer = await pipeline('text-to-speech', 'Xenova/speecht5_tts', { quantized: false });
+                const speaker_embeddings = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/speaker_embeddings.bin';
+                const speech = await synthesizer(window.translatedText, { speaker_embeddings });
+                
+                // Convert the Float32Array audio data to a WAV file
+                const wavData = toWav(speech.audio, speech.sampling_rate);
+                await ffmpeg.writeFile('new_audio.wav', wavData);
+                updateLog(logs.synthesize, 'done');
 
                 // Step 6: Dub video
                 updateLog(logs.dub, 'processing...');
-                await ffmpeg.exec(['-i', 'input.mp4', '-i', 'new_audio.mp3', '-c:v', 'copy', '-c:a', 'aac', '-map', '0:v:0', '-map', '1:a:0', '-shortest', 'output.mp4']);
+                await ffmpeg.exec(['-i', videoFile.name, '-i', 'new_audio.wav', '-c:v', 'copy', '-c:a', 'aac', '-map', '0:v:0', '-map', '1:a:0', '-shortest', 'output.mp4']);
                 const outputData = await ffmpeg.readFile('output.mp4');
                 updateLog(logs.dub, 'done');
                 
@@ -285,10 +295,47 @@
 
             } catch(e) {
                 console.error(e);
-                alert("An error occurred during dubbing. Please check console for details.");
-            } finally {
-                processBtn.disabled = false;
+                alert("An error occurred during dubbing. This can happen if the video is too long or the AI models fail to load. Please try refreshing the page or using a shorter video. Check the console (F12) for technical details.");
+                // Re-enable the button on failure
+                 processBtn.disabled = false;
             }
+        }
+
+        // Helper function to convert a Float32Array to a 16-bit PCM WAV file
+        function toWav(float32Array, sampleRate) {
+            const numSamples = float32Array.length;
+            const numChannels = 1;
+            const bytesPerSample = 2;
+            const blockAlign = numChannels * bytesPerSample;
+            const byteRate = sampleRate * blockAlign;
+            const dataSize = numSamples * bytesPerSample;
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+
+            // RIFF header
+            view.setUint32(0, 0x52494646, false); // "RIFF"
+            view.setUint32(4, 36 + dataSize, true);
+            view.setUint32(8, 0x57415645, false); // "WAVE"
+            // "fmt " sub-chunk
+            view.setUint32(12, 0x666d7420, false); // "fmt "
+            view.setUint32(16, 16, true); // Subchunk1Size
+            view.setUint16(20, 1, true); // AudioFormat (1 for PCM)
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, 16, true); // BitsPerSample
+            // "data" sub-chunk
+            view.setUint32(36, 0x64617461, false); // "data"
+            view.setUint32(40, dataSize, true);
+
+            // Write PCM data
+            let offset = 44;
+            for (let i = 0; i < numSamples; i++, offset += 2) {
+                let s = Math.max(-1, Math.min(1, float32Array[i]));
+                view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+            }
+            return new Uint8Array(buffer);
         }
         
     </script>
